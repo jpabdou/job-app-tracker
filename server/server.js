@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 server.use(cors());
 server.use(express.json());
 
-server.use(require("./routes/record"));
+server.use(require("./routes/jobs"));
 
 // Get MongoDB driver connection
 const dbo = require("./db/conn");
