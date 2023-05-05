@@ -1,28 +1,34 @@
 'use client';
-import React, {useState } from "react";
+import React, {useState, useEffect } from "react";
 import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
+import ManualJobForm from "@/components/ManualJobForm";
+import JobForms from "@/components/JobForms";
 
 export default function JobEntry() {
-    const h2Setting = "text-2xl text-left"
-    const labelSetting = "w-auto h-auto flex flex-row justify-evenly my-2"
-    const inputSetting = "w-auto h-auto"
-    const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left"
-    const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black"
-    const jobDisplaySetting = "w-full flex flex-row flex-wrap justify-evenly"
-    const jobSetting = "w-1/3 h-1/2 flex flex-col flex-wrap justify-evenly content-left"
+    const h2Setting = "text-2xl text-left";
+    const labelSetting = "w-auto h-auto flex flex-row justify-evenly my-2";
+    const inputSetting = "w-auto h-auto";
+    const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
+    const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
+    const deleteSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-red-700 text-white hover:bg-red-200 hover:text-black";
+    const jobDisplaySetting = "w-full flex flex-row flex-wrap justify-evenly";
+    const jobSetting = "w-1/3 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
+    const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
+    const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
     const currentDate = new Date().toJSON().slice(0,10);
     let initialUrlList : string[] = [];
-    interface Job {"company": string, "title": string, "URL": string, "jobDescription": string, "location": string, "dateApplied": string, "applicationRoute": string};
-    let initialManualJobInput :  Job ={"company": "", "title": "", "URL": "", "jobDescription": "", "location": "", "dateApplied": currentDate, "applicationRoute": "Not Applied Yet"};
+    interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
+    let initialManualJobInput :  Job ={company: "", title: "", URL: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
     let initialJobEntries : Job[] = [];
-    interface JobError {"company": string[], "title": string[], "URL": string[], "jobDescription": string[], "location": string[], "dateApplied": string[], "applicationRoute": string[]};
-    let initialJobErrors : JobError = {"company": [], "title": [], "URL": [], "jobDescription": [], "location": [], "dateApplied": [], "applicationRoute": []};
+    interface JobError {company: number[], title: number[], URL: number[], jobDescription: number[], location: number[]};
+    let initialJobErrors : JobError = {company: [], title: [], URL: [], jobDescription: [], location: []};
 
     // const [urlList, setUrlList] = useState(initialUrlList);
     const [jobList, setJobList] = useState(initialJobEntries);
-    const [manualJob, setManualJob] = useState(initialManualJobInput);
-    const [jobErrors, setJobErrors] = useState(initialJobErrors);
+
+    
     // const handleChange= (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     //     let val: string = event.target.value;
     //     setUrlList(val.split("\n"));
@@ -55,7 +61,7 @@ export default function JobEntry() {
     //             };
     //             const config = {
     //                 headers:{
-    //                 "Access-Control-Allow-Origin": "*"
+    //                 Access-Control-Allow-Origin": "*"
                     
     //                 }
     //               };
@@ -150,19 +156,9 @@ export default function JobEntry() {
     //     setUrlList(initialUrlList);
     // }
 
-    const onSubmitManualInput = (event: React.ChangeEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const jobEntry: Job = manualJob
-        setJobList([...jobList, jobEntry]);
-        setManualJob(initialManualJobInput);
-    }
 
     
-    const handleChangeInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-        let val: string = event.target.value;
-        let name: string = event.target.name;
-        setManualJob({...manualJob, [name]: val});
-    }
+
 
 
     const handleJobUpdateInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement> , index: number) => {
@@ -173,15 +169,6 @@ export default function JobEntry() {
         jobList.splice(index, 1, jobEntry);
         setJobList([...jobList]);
     }
-
-    // const handleJobUpdateText= (event: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
-    //     let val: string = event.target.value;
-    //     let name: string = event.target.name;
-    //     let jobEntry: Job = jobList[index];
-    //     jobEntry = {...jobEntry, [name]:val};
-    //     jobList.splice(index, 1, jobEntry);
-    //     setJobList([...jobList]);
-    // }
 
     const postJob = async (job: Job) => {
         try {
@@ -210,26 +197,11 @@ export default function JobEntry() {
 
       }
 
-      const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["URL","URL"],["dateApplied","Application Date"]]
-      const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"]
-    //   const applicationRouteArr: Array<string> = ["Company Career Site", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"]
+      const requiredArr:  Array<string> = ["company", "title", "URL", "location"];
+      const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["URL","URL"],["dateApplied","Application Date"]];
+      const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"];
+      const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
 
-
-    //   let myobj = {
-    //     company: req.body.company,x
-    //     title: req.body.title,x
-    //     URL: req.body.url,x
-    //     jobDescription: req.body.jobDescription,x
-        //     dateApplied: req.body.dateApplied,x
-    //     location: req.body.location,x
-
-    //     applicationRoute: req.body.applicationRoute,x
-    //     outreach: req.body.outreach,
-
-    //     appStatus: req.body.appStatus,
-    //     result: req.body.result,
-    //     outreachContact: req.body.outreachContact,
-    //   };
     return (
         <div className="w-full">
             {/* <form onSubmit={onSubmitUrlList}>
@@ -243,62 +215,19 @@ export default function JobEntry() {
             </form> */}
 
             {/* {urlList.map((listing, idx)=>{return(<p key={idx}>{listing}</p>)})} */}
-            <h2 className={h2Setting}>Manually enter the job below:</h2>
-            <form className={formSetting} onSubmit={onSubmitManualInput}>
-                {inputArr.map(inputElement=>{
-                    return(                
-                    <label key={inputElement[0]} className={labelSetting}>
-                        Enter {inputElement[1]}: 
-                        <input name={inputElement[0]} className={inputSetting} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
-                        
-                    </label>)
-                })}
-                <label className={labelSetting}>
-                    Enter the Application Method/Source:
-                    <select name="applicationRoute" onChange={handleChangeInput}>
-                    {applicationRouteArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
-                    })}
-                    </select>
 
-                </label><br></br>
-                {/* <label className={labelSetting}>
-                    Enter Company Name: 
-                    <input name="company" className={inputSetting} type="text" value={manualJob.company} placeholder='Enter Company Name Here' onChange={handleChangeInput} />
-                </label>
-                <br></br>
-                <label className={labelSetting}>
-                    Enter Job Title Name:
-                    <input name="title" className={inputSetting} type="text" value={manualJob.title} placeholder='Enter Job Title Here' onChange={handleChangeInput} />
-                </label>
-                <br></br>
-                <label className={labelSetting}>
-                    Enter Job Location:
-                    <input name="location" className={inputSetting} type="text" value={manualJob.location} placeholder='Enter Job Location Here' onChange={handleChangeInput} />
-                </label>
-                <br></br>
-                <label className={labelSetting}>
-                    Enter URL:
-                    <input name="URL" className={inputSetting} type="text" value={manualJob.URL} placeholder='Enter URL Here' onChange={handleChangeInput} />
-                </label> 
-                <br></br>
-                <label className={labelSetting}>
-                    Enter Application Date:
-                    <input name="dateApplied" type="date" className={inputSetting} value={manualJob.dateApplied} onChange={handleChangeInput} />
-                </label><br></br>                */}
-                <label className={labelSetting}>
-                    Enter Job Description:
-                    <textarea name="jobDescription" className={inputSetting} value={manualJob.jobDescription} placeholder='Enter Job Description Here' onChange={handleChangeInput} />
-                </label><br></br>
-                <button className={buttonSetting}>Submit Job Entry</button>                
-            </form>
+            <ManualJobForm jobList={jobList} setJobList={setJobList} />
             <br></br>
-            <form onSubmit={onSubmitJobList}>
+            <JobForms jobList={jobList} setJobList={setJobList} />
+            {/* <form onSubmit={onSubmitJobList}>
             <span className={jobDisplaySetting}>
             {jobList.map((job, idx)=>{
                 return(            
                     <div className={jobSetting} key={idx}>
                     <h2 className={h2Setting} >Job #{idx+1}</h2>
+                    <div className={deleteSetting} onClick={()=>{
+                        jobList.splice(idx, 1);
+                        setJobList([...jobList]);}}>Delete Job</div>
                     {inputArr.map(inputElement=>{
                     return(                
                     <label key={`${idx}-${inputElement[0]}`} className={labelSetting}>
@@ -316,31 +245,6 @@ export default function JobEntry() {
                     </select>
 
                 </label><br></br>
-
-                    {/* <label className={labelSetting}>
-                        Company Name:
-                        <input className={inputSetting} name="company" type="text" value={job.company} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label>
-                    <br></br>
-                    <label className={labelSetting}>
-                        Job Title Name:
-                        <input className={inputSetting} name="title" type="text" value={job.title} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label>
-                    <br></br>
-                    <label className={labelSetting}>
-                    Job Location:
-                    <input className={inputSetting} name="location" type="text" value={job.location} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label>
-                    <br></br>
-                    <label className={labelSetting}>
-                        URL:
-                        <input className={inputSetting} name="URL" type="text" value={job.URL} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label> 
-                    <br></br> 
-                    <label className={labelSetting}>
-                        Application Date:
-                        <input className={inputSetting} name="dateApplied" type="date" value={job.dateApplied} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label><br></br>               */}
                     <label className={labelSetting}>
                         Job Description:
                         <textarea className={inputSetting} name="jobDescription" value={job.jobDescription} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>)=>handleJobUpdateInput(event, idx)} />
@@ -350,7 +254,7 @@ export default function JobEntry() {
             })}
             </span>
                                 {jobList.length >0 ? <button className={buttonSetting}>Submit Job Entries to Your Job List</button> : null}                
-        </form>
+        </form> */}
 
         </div>
     )
