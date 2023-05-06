@@ -11,24 +11,35 @@ export default function ManualJobForm(props: props) {
     let {jobList, setJobList} = props;
     let initialManualJobInput :  Job ={company: "", title: "", URL: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
     const h2Setting = "text-2xl text-left";
-    const labelSetting = "w-auto h-auto flex flex-row justify-evenly my-2";
-    const inputSetting = "w-auto h-auto";
+    const h3Setting = "text-1xl text-left";
+    const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto"
     const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
     const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
+    const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
+
+    const highlightRequiredSetting = "bg-yellow-400"
 
     const [manualJob, setManualJob] = useState(initialManualJobInput);
     const [manualDisabled, setManualDisabled] = useState(true);
+    const [highlightOn, setHighlightOn] = useState(false);
 
-    const onSubmitManualInput = (event: React.ChangeEvent<HTMLFormElement>) => {
+    const onSubmitJob = (event: React.ChangeEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const jobEntry: Job = manualJob;
-        setJobList([...jobList, jobEntry]);
-        setManualJob(initialManualJobInput);
+        manualErrorSetting();
+        if (manualDisabled) {
+            setHighlightOn(true)
+        } else {
+            const jobEntry: Job = manualJob;
+            setJobList([...jobList, jobEntry]);
+            setManualJob(initialManualJobInput);
+            setHighlightOn(false)
+        }
+
     }
 
     const handleChangeInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-        let val: string = event.target.value;
+        let val: (string | number) = event.target.value;
         let name: string = event.target.name;
 
             setManualJob({...manualJob, [name]: val});
@@ -37,15 +48,12 @@ export default function ManualJobForm(props: props) {
     const handleAppRouteInput = (event: React.ChangeEvent<HTMLSelectElement>) =>{
         let val: string = event.target.value;
         let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen"];
+        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
 
-        if (val === "Referral") {
-            setManualJob({...manualJob, appStatus: appStatusArr[1], emailFollowup: "yes", [name]: val});
-        } else if (val === "Not Applied Yet") {
-            setManualJob({...manualJob, appStatus: appStatusArr[0], emailFollowup: "no", [name]: val});
-        } else {
-            setManualJob({...manualJob, appStatus: appStatusArr[1], emailFollowup: "no", [name]: val});
-        }
+        setManualJob({...manualJob, 
+            appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
+            emailFollowup: val=== appStatusArr[2] ? "yes" : "no", [name]: val});
+
     };
 
     const requiredArr:  Array<string> = ["company", "title", "URL", "location"];
@@ -54,68 +62,85 @@ export default function ManualJobForm(props: props) {
     const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
     
     const jobTest = (requiredElements: Array<string>, job: Job) =>{
-        return requiredElements.some(ele=>{return job[ele as keyof Job].length === 0});
+        return requiredElements.some(ele=>{return job[ele as keyof Job].trim().length === 0});
 
     };
 
     const manualErrorSetting = () => {
         setManualDisabled(jobTest(requiredArr, manualJob));
     }
-    
+
     useEffect(() =>{
         manualErrorSetting();
         },[manualJob]);
 
+
     return (
         <div className="w-full">
-            <h2 className={h2Setting}>Manually enter the job below:</h2>
-            <form className={formSetting} onSubmit={onSubmitManualInput}>
+            <h2 className={h2Setting}>Manually enter the job below:</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
+            <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{
-                    return(                
-                    <label key={inputElement[0]} className={labelSetting}>
-                        Enter {inputElement[1]}: 
-                        <input name={inputElement[0]} className={inputSetting} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
+                    return( 
+                        <div key={inputElement[0]} className={divInputSetting}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job].trim().length ===0 && highlightRequiredSetting}`}>
+                        Enter {inputElement[1]}:</label>
+                        <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
                         
-                    </label>)
+                        </div>               
+
+                    )
                 })}
-                <label className={labelSetting}>
-                    Enter the Application Method/Source:
-                    <select name="applicationRoute" onChange={handleAppRouteInput}>
+                <div className={divInputSetting}>
+                <label htmlFor="applicationRoute">
+                    Enter the Application Method/Source:</label>
+                    <select name="applicationRoute" value={manualJob.applicationRoute} onChange={handleAppRouteInput}>
                     {applicationRouteArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
+                        return(<option key={choice} value={choice}>{choice}</option>)
                     })}
                     </select>
+                </div>
 
-                </label>
-                {manualJob.applicationRoute!=="Referral" && manualJob.applicationRoute!=="Not Applied Yet" ?                     
-                <label className={labelSetting}>
-                Have you sent a follow-up email to a recruiter or hiring manager for this application?
+
+
+                {manualJob.applicationRoute!=="Referral" && manualJob.applicationRoute!=="Not Applied Yet" ? 
+                <div className={divInputSetting}>
+                    <label htmlFor="emailFollowup">
+                Have you sent a follow-up email to a recruiter or hiring manager for this application?</label>
                 <select name="emailFollowup" value={manualJob.emailFollowup} onChange={handleChangeInput}>
-                    <option className={inputSetting} value="no">No</option>
-                    <option className={inputSetting} value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
                 </select>
-                </label>
+                </div>                    
+
                     : null}
-                {manualJob.emailFollowup ==="yes" ?                     
-                <label className={labelSetting}>
-                        Enter Contact Name: 
-                        <input name="outreachContact" className={inputSetting} type="text" value={manualJob["outreachContact" as keyof Job]} placeholder="Enter Contact Here" onChange={handleChangeInput} />
-                    </label> 
+                {manualJob.emailFollowup ==="yes" ?     
+                <div className={divInputSetting}>
+                <label htmlFor="outreachContact">
+                        Enter Contact Name:</label> 
+                        <input name="outreachContact" type="text" value={manualJob["outreachContact" as keyof Job]} placeholder="Enter Contact Here" onChange={handleChangeInput} />
+                </div>              
+
                     : null}
-                <label className={labelSetting}>
-                    Enter Job Description:
-                    <textarea name="jobDescription" className={inputSetting} value={manualJob.jobDescription} placeholder='Enter Job Description Here' onChange={handleChangeInput} />
-                </label><br></br>
-                <label className={labelSetting}>
-                    Enter the Application Status:
+                    <div className={divInputSetting}>
+                    <label htmlFor="jobDescription">
+                    Enter Job Description:</label>
+                    <textarea name="jobDescription" value={manualJob.jobDescription} placeholder='Enter Job Description Here' onChange={handleChangeInput} />
+                    </div>
+
+                <br></br>
+                <div className={divInputSetting}>
+                <label htmlFor="appStatus">
+                    Enter the Application Status:</label>
                     <select name="appStatus" value={manualJob.appStatus} onChange={handleChangeInput}>
                     {appStatusArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
+                        return(<option key={choice} value={choice}>{choice}</option>)
                     })}
                     </select>
+                </div>
 
-                </label>
-                <button className={manualDisabled ? disabledButtonSetting : buttonSetting} disabled={manualDisabled}>Submit Job Entry</button>                
+
+                
+                <button className={manualDisabled ? disabledButtonSetting : buttonSetting}>{manualDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : "Submit Job Entry" }</button>                
             </form>
             </div>
             );

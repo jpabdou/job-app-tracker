@@ -1,5 +1,7 @@
 import React, {useState, useEffect } from "react";
 import axios, { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
+
 
 interface props {
     jobList: Job[];
@@ -18,18 +20,19 @@ export default function JobForms(props: props) {
 
     const [errors, setErrors] = useState(initialErrors);
     const [jobListDisabled, setJobListDisabled] = useState(errors.length >0);
+    const [highlightOn, setHighlightOn] = useState(false);
+    const router = useRouter();
 
 
     const h2Setting = "text-2xl text-left";
-    const labelSetting = "w-auto h-auto flex flex-row justify-evenly my-2";
-    const inputSetting = "w-auto h-auto";
-    const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
+    const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto"
     const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     const deleteSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-red-700 text-white hover:bg-red-200 hover:text-black";
     const jobDisplaySetting = "w-full flex flex-row flex-wrap justify-evenly";
     const jobSetting = "w-1/3 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
+    const highlightRequiredSetting = "bg-yellow-400"
 
     const setJob = (job: Job, idx: number) =>{
         jobList.splice(idx, 1, job);
@@ -37,39 +40,42 @@ export default function JobForms(props: props) {
 
     };
 
+    const deleteJob = (idx: number) => {
+        jobList.splice(idx, 1);
+        setJobList([...jobList]);
+    }
+
     const handleJobUpdateInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement> , index: number) => {
         let val: string = event.target.value;
         let name: string = event.target.name;
+
         let jobEntry: Job = jobList[index];
         jobEntry = {...jobEntry, [name]:val};
-        jobList.splice(index, 1, jobEntry);
-        setJobList([...jobList]);
-    };
-
-    const handleJobUpdateAppRouteInput = (event: React.ChangeEvent<HTMLSelectElement>, index: number) =>{
-        let val: string = event.target.value;
-        let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen"];
-        let jobEntry: Job = jobList[index];
-
-        if (val === "Referral") {
-            jobEntry = {...jobEntry, appStatus: appStatusArr[1], emailFollowup: "yes", [name]: val};
-        } else if (val === "Not Applied Yet") {
-            jobEntry = {...jobEntry, appStatus: appStatusArr[0], emailFollowup: "no", [name]:val};
-        } else {
-            jobEntry = {...jobEntry, appStatus: appStatusArr[1], emailFollowup: "no", [name]:val};
-        }
-        jobList.splice(index, 1, jobEntry);
-        setJobList([...jobList]);
+        setJob(jobEntry, index);
         errorSetting(index);
     };
 
+    const handleJobUpdateAppRouteInput = (event: React.ChangeEvent<HTMLSelectElement>, index: number) =>{
+        let val: (string | number) = event.target.value;
+        let name: string = event.target.name;      
+        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
+        let jobEntry: Job = jobList[index];
+        jobEntry = {...jobEntry, 
+            appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
+            emailFollowup: val=== appStatusArr[2] ? "yes" : "no", [name]: val};
+        setJob(jobEntry, index);
+
+    };
+    const config = {
+        headers:{
+            "Content-Type": "application/json"
+        }
+      };
+
     const postJob = async (job: Job) => {
         try {
-          const response = await axios.post("http://localhost:5000/jobs/add", job);
-          if (response.status === 404) {
-            return job;
-          }
+          const response = await axios.post("http://localhost:5000/jobs/add", JSON.stringify(job), config);
+          return(response.data);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('Axios error message: ', error.message);
@@ -83,10 +89,17 @@ export default function JobForms(props: props) {
 
       const onSubmitJobList = async (event: React.ChangeEvent<HTMLFormElement>) =>{
         event.preventDefault();
+        if (jobListDisabled) {
+            setHighlightOn(true);
+        } else {
         const promises = jobList.map((job) => postJob(job));
         const results = await Promise.all(promises);
         console.log(results);
         setJobList(initialJobEntries);
+        setHighlightOn(false);
+        setErrors(initialErrors);
+        router.push('/job-list')
+    }
 
 
       }
@@ -99,7 +112,7 @@ export default function JobForms(props: props) {
 
 
       const jobTest = (requiredElements: Array<string>, job: Job) =>{
-        return requiredElements.some(ele=>{return job[ele as keyof Job].length === 0});
+        return requiredElements.some(ele=>{return job[ele as keyof Job].trim().length === 0});
 
     };
 
@@ -108,16 +121,22 @@ export default function JobForms(props: props) {
 
         let job = jobList[index];
         if (jobTest(requiredArr, job)) {
-            setErrors([...errors, index])
+            if (!(errors.includes(index))){
+            setErrors([...errors, index])}
+
+
         } else {
             let newErrors = errors.filter(error=> error!== index);
             setErrors([...newErrors])
 
         };
-        setJobListDisabled(errors.length >0)
+       
 
     }
 
+    useEffect(() =>{
+        setJobListDisabled(errors.length >0);
+        },[errors]);
 
     return (
         <div className="w-full">
@@ -128,60 +147,66 @@ export default function JobForms(props: props) {
                     <div className={jobSetting} key={idx}>
                     <h2 className={h2Setting} >Job #{idx+1}</h2>
                     <div className={deleteSetting} onClick={()=>{
-                        jobList.splice(idx, 1);
-                        setJobList([...jobList]);}}>Delete Job</div>
+                        deleteJob(idx)
+                        }}>Delete Job</div>
 
                 {inputArr.map(inputElement=>{
                     return(                
-                    <label key={inputElement[0]} className={labelSetting}>
-                        {inputElement[1]}: 
-                        <input name={inputElement[0]} className={inputSetting} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={job[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event,idx)} />
+                        <div key={inputElement[0]} className={divInputSetting}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && job[inputElement[0] as keyof Job].trim().length ===0 && highlightRequiredSetting}`}>
+                        {inputElement[1]}:</label>
+                        <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={job[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event,idx)} />
                         
-                    </label>)
+                        </div> )
                 })}
 
-                <label className={labelSetting}>
-                    Application Method/Source:
-                    <select name="applicationRoute" onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateAppRouteInput(event,idx)}>
+                <div className={divInputSetting}>
+                <label htmlFor="applicationRoute">
+                    Enter the Application Method/Source:</label>
+                    <select name="applicationRoute" value={job.applicationRoute} onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateAppRouteInput(event,idx)}>
                     {applicationRouteArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
+                        return(<option key={choice} value={choice}>{choice}</option>)
                     })}
                     </select>
+                </div>
 
-                </label>
-                {job.applicationRoute!=="Referral" && job.applicationRoute!=="Not Applied Yet" ?                     
-                <label className={labelSetting}>
+                {job.applicationRoute !=="Referral" && job.applicationRoute!=="Not Applied Yet" ?                     
+                <label>
                 Have you sent a follow-up email to a recruiter or hiring manager for this application?
                 <select name="emailFollowup" value={job.emailFollowup} onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateInput(event,idx)}>
-                    <option className={inputSetting} value="no">No</option>
-                    <option className={inputSetting} value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
                 </select>
                 </label>
                     : null}
-                {job.emailFollowup ==="yes" ?                     
-                <label className={labelSetting}>
-                        Contact Name: 
-                        <input name="outreachContact" className={inputSetting} type="text" value={job["outreachContact" as keyof Job]} placeholder="Enter Contact Here" onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event,idx)} />
-                    </label> 
+                {job.emailFollowup ==="yes" ?     
+                <div className={divInputSetting}>
+                <label htmlFor="outreachContact">
+                        Enter Contact Name:</label> 
+                        <input name="outreachContact" type="text" value={job["outreachContact" as keyof Job]} placeholder="Enter Contact Here" onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event,idx)} />
+                </div>              
                     : null}
-                <label className={labelSetting}>
-                    Job Description:
-                    <textarea name="jobDescription" className={inputSetting} value={job.jobDescription} placeholder='Enter Job Description Here' onChange={(event: React.ChangeEvent<HTMLTextAreaElement>)=>handleJobUpdateInput(event,idx)} />
-                </label><br></br>
-                <label className={labelSetting}>
-                    Application Status:
+
+                <div className={divInputSetting}>
+                    <label htmlFor="jobDescription">
+                    Enter Job Description:</label>
+                    <textarea name="jobDescription" value={job.jobDescription} placeholder='Enter Job Description Here' onChange={(event: React.ChangeEvent<HTMLTextAreaElement>)=>handleJobUpdateInput(event,idx)} />
+                </div>
+                
+                <div className={divInputSetting}>
+                <label htmlFor="appStatus">
+                    Enter the Application Status:</label>
                     <select name="appStatus" value={job.appStatus} onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateInput(event,idx)}>
                     {appStatusArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
+                        return(<option key={choice} value={choice}>{choice}</option>)
                     })}
                     </select>
-
-                </label>
+                </div>
                     </div>
                 )
             })}
             </span>
-                                {jobList.length >0 ? <button className={jobListDisabled ? disabledButtonSetting : buttonSetting} disabled={jobListDisabled}>Submit Job Entries to Your Job List</button> : null}                
+            {jobList.length >0 ? <button className={jobListDisabled ? disabledButtonSetting : buttonSetting}>{jobListDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : "Submit Job Entries to Your Job List" }</button> : null}                
         </form>
             </div>
             );

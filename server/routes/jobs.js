@@ -47,10 +47,9 @@ jobRoutes.route("/jobs/add").post(function (req, response) {
    jobDescription: req.body.jobDescription || "",
    location: req.body.location,
    applicationRoute: req.body.applicationRoute,
-   currentStatus: req.body.currentStatus || "Applied",
    dateApplied: req.body.dateApplied,
    appStatus: req.body.appStatus || "Applied",
-   result: req.body.result || "Applied",
+   emailFollowup: req.body.emailFollowup || "no",
    outreachContact: req.body.outreachContact || "",
  };
  db_connect.collection("jobsData").insertOne(myobj, function (err, res) {
@@ -71,11 +70,10 @@ jobRoutes.route("/jobs/update/:id").post(function (req, response) {
     jobDescription: req.body.jobDescription || "",
     location: req.body.location,
     applicationRoute: req.body.applicationRoute,
-    currentStatus: req.body.currentStatus || "Applied",
     dateApplied: req.body.dateApplied,
     appStatus: req.body.appStatus || "Applied",
-    result: req.body.result || "Applied",
     outreachContact: req.body.outreachContact || "",
+    emailFollowup: req.body.emailFollowup || "no" 
    },
  };
  db_connect
