@@ -4,7 +4,7 @@ interface props {
     jobList: Job[];
     setJobList: (jobs: Job[]) => void;
   }
-interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
+export interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
 
 export default function ManualJobForm(props: props) {
     const currentDate = new Date().toJSON().slice(0,10);
