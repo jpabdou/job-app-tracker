@@ -1,12 +1,14 @@
-import express, {Request, Response} from "express";
+import express from "express";
 import { Job } from "@/components/ManualJobForm";
-const server = express();
 
+const next = require('next');
 const cors = require("cors");
 import * as dotenv from "dotenv";
+import { NextApiResponse, NextApiRequest } from 'next';
 
 const port = process.env.PORT || 5000;
 
+const server = express();
 server.use(cors());
 server.use(express.json());
 
@@ -100,90 +102,153 @@ async function applySchemaValidation(db: mongoDB.Db) {
   });
 }
 
+export default function handler(request: NextApiRequest, response: NextApiResponse) {
+  let db_connect = dbo.getDb("jobsData");
+  const { searchParams } = new URL(request.url!);
+  let id: string;
+  switch (request.method) {
+    case 'POST':
+      let myobj = {
+        company: request.body.company,
+        title: request.body.title,
+        URL: request.body.url,
+        jobDescription: request.body.jobDescription || "No Description Added",
+        location: request.body.location,
+        applicationRoute: request.body.applicationRoute,
+        dateApplied: request.body.dateApplied,
+        appStatus: request.body.appStatus || "Not Yet Applied",
+        emailFollowup: request.body.emailFollowup || "no",
+        outreachContact: request.body.outreachContact || "",
+      };
+      db_connect.collection("jobsData").insertOne(myobj, function (err:mongoDB.MongoServerError, res: Job) {
+        if (err) throw err;
+        response.json(res);
+      });  
+      break;
+    case 'GET':
+      id = searchParams.get('id') || "" as string;
 
-// This section will help you get a list of all the jobs.
-jobRouter.route("/jobs").get(function (req: Request, res: Response) {
- let db_connect = dbo.getDb("jobsData");
- db_connect
-   .collection("jobsData")
-   .find({})
-   .toArray(function (err: mongoDB.MongoServerError, result: Job[]) {
-     if (err) throw err;
-     res.json(result);
-   });
-});
- 
-// This section will help you get a single job by id
-jobRouter.route("/jobs/:id").get(function (req: Request, res: Response) {
- let db_connect = dbo.getDb();
- let myquery = { _id: new ObjectId(req.params.id) };
- db_connect
-   .collection("jobsData")
-   .findOne(myquery, function (err: mongoDB.MongoServerError, result: Job) {
-     if (err) throw err;
-     res.json(result);
-   });
-});
+      if (id.length>0) {
+        let myquery = { _id: new ObjectId(id) };
+        db_connect
+          .collection("jobsData")
+          .findOne(myquery, function (err: mongoDB.MongoServerError, result: Job) {
+            if (err) throw err;
+            response.json(result);
+          });
+      } else {
+        db_connect
+          .collection("jobsData")
+          .find({})
+          .toArray(function (err: mongoDB.MongoServerError, result: Job[]) {
+            if (err) throw err;
+            response.json(result);
+          });
+      }
+      break;
+    case "PUT":
+      
+      id = searchParams.get('id') || "" as string;
+      let myquery = { _id: new ObjectId(id) };
+      let newvalues = {
+        $set: {
+         company: request.body.company,
+         title: request.body.title,
+         URL: request.body.url,
+         jobDescription: request.body.jobDescription || "",
+         location: request.body.location,
+         applicationRoute: request.body.applicationRoute,
+         dateApplied: request.body.dateApplied,
+         appStatus: request.body.appStatus || "Applied",
+         outreachContact: request.body.outreachContact || "",
+         emailFollowup: request.body.emailFollowup || "no" 
+        },
+      };
+      db_connect
+        .collection("jobsData")
+        .updateOne(myquery, newvalues, function (err:mongoDB.MongoServerError, res: Job) {
+          if (err) throw err;
+          console.log("1 document updated");
+          response.json(res);
+        });
+      break;
+    case "DELETE":
+      id = searchParams.get('id') || "" as string;
+      let query = { _id: new ObjectId(id) };
+      db_connect.collection("jobsData").deleteOne(query, function (err: mongoDB.MongoServerError, obj:Job) {
+        if (err) throw err;
+        console.log("1 document deleted");
+        response.json(obj);
+      });
 
 
-// This section will help you create a new job.
-jobRouter.route("/jobs/add").post(function (req: Request, response: Response) {
- let db_connect = dbo.getDb("jobsData");
- let myobj = {
-   company: req.body.company,
-   title: req.body.title,
-   URL: req.body.url,
-   jobDescription: req.body.jobDescription || "No Description Added",
-   location: req.body.location,
-   applicationRoute: req.body.applicationRoute,
-   dateApplied: req.body.dateApplied,
-   appStatus: req.body.appStatus || "Not Yet Applied",
-   emailFollowup: req.body.emailFollowup || "no",
-   outreachContact: req.body.outreachContact || "",
- };
- db_connect.collection("jobsData").insertOne(myobj, function (err:mongoDB.MongoServerError, res: Job) {
-   if (err) throw err;
-   response.json(res);
- });
-});
+  }
+}
+
+// // This section will help you get a list of all the jobs.
+// jobRouter.route("/jobs").get(function (request: NextApiRequest, res: NextApiResponse) {
+//  let db_connect = dbo.getDb("jobsData");
+//  db_connect
+//    .collection("jobsData")
+//    .find({})
+//    .toArray(function (err: mongoDB.MongoServerError, result: Job[]) {
+//      if (err) throw err;
+//      res.json(result);
+//    });
+// });
  
-// This section will help you update a job by id.
-jobRouter.route("/jobs/update/:id").post(function (req: Request, response: Response) {
- let db_connect = dbo.getDb("jobsData");
- let myquery = { _id: new ObjectId(req.params.id) };
- let newvalues = {
-   $set: {
-    company: req.body.company,
-    title: req.body.title,
-    URL: req.body.url,
-    jobDescription: req.body.jobDescription || "",
-    location: req.body.location,
-    applicationRoute: req.body.applicationRoute,
-    dateApplied: req.body.dateApplied,
-    appStatus: req.body.appStatus || "Applied",
-    outreachContact: req.body.outreachContact || "",
-    emailFollowup: req.body.emailFollowup || "no" 
-   },
- };
- db_connect
-   .collection("jobsData")
-   .updateOne(myquery, newvalues, function (err:mongoDB.MongoServerError, res: Job) {
-     if (err) throw err;
-     console.log("1 document updated");
-     response.json(res);
-   });
-});
+// // This section will help you get a single job by id
+// jobRouter.route("/jobs/:id").get(function (req: NextApiRequest, res: NextApiResponse) {
+//  let db_connect = dbo.getDb();
+//  let myquery = { _id: new ObjectId(req.params.id) };
+//  db_connect
+//    .collection("jobsData")
+//    .findOne(myquery, function (err: mongoDB.MongoServerError, result: Job) {
+//      if (err) throw err;
+//      res.json(result);
+//    });
+// });
+
+
+// // This section will help you create a new job.
+
+// // This section will help you update a job by id.
+// jobRouter.route("/jobs/update/:id").post(function (req: NextApiRequest, response: Response) {
+//  let db_connect = dbo.getDb("jobsData");
+//  let myquery = { _id: new ObjectId(req.params.id) };
+//  let newvalues = {
+//    $set: {
+//     company: req.body.company,
+//     title: req.body.title,
+//     URL: req.body.url,
+//     jobDescription: req.body.jobDescription || "",
+//     location: req.body.location,
+//     applicationRoute: req.body.applicationRoute,
+//     dateApplied: req.body.dateApplied,
+//     appStatus: req.body.appStatus || "Applied",
+//     outreachContact: req.body.outreachContact || "",
+//     emailFollowup: req.body.emailFollowup || "no" 
+//    },
+//  };
+//  db_connect
+//    .collection("jobsData")
+//    .updateOne(myquery, newvalues, function (err:mongoDB.MongoServerError, res: Job) {
+//      if (err) throw err;
+//      console.log("1 document updated");
+//      response.json(res);
+//    });
+// });
  
-// This section will help you delete a job
-jobRouter.route("/jobs/:id").delete((req: Request, response: Response) => {
- let db_connect = dbo.getDb("jobsData");
- let myquery = { _id: new ObjectId(req.params.id) };
- db_connect.collection("jobsData").deleteOne(myquery, function (err: mongoDB.MongoServerError, obj:Job) {
-   if (err) throw err;
-   console.log("1 document deleted");
-   response.json(obj);
- });
-});
+// // This section will help you delete a job
+// jobRouter.route("/jobs/:id").delete((req: NextApiRequest, response: Response) => {
+//  let db_connect = dbo.getDb("jobsData");
+//  let myquery = { _id: new ObjectId(req.params.id) };
+//  db_connect.collection("jobsData").deleteOne(myquery, function (err: mongoDB.MongoServerError, obj:Job) {
+//    if (err) throw err;
+//    console.log("1 document deleted");
+//    response.json(obj);
+//  });
+// });
 
 
 
