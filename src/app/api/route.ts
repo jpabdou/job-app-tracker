@@ -1,30 +1,24 @@
 import express from "express";
-import { Job } from "@/components/ManualJobForm";
+import { Job } from "@/app/components/ManualJobForm";
 
 const next = require('next');
-const cors = require("cors");
+import runMiddleware from "./middleware";
 import * as dotenv from "dotenv";
 import { NextApiResponse, NextApiRequest } from 'next';
 
 const port = process.env.PORT || 5000;
 
-const server = express();
-server.use(cors());
-server.use(express.json());
-
-const jobRouter = express.Router();
-
 import * as mongoDB from "mongodb";
 
 const ObjectId = mongoDB.ObjectId;
 
-const dbo = require("../../../../db/conn.js");
+const dbo = require("../../../db/conn");
 
 const collections: { jobs?: mongoDB.Collection<Job> } = {};
 
 async function connectToDatabase() {
   // Pulls in the .env file so it can be accessed from process.env. No path as .env is in root, the default location
-  dotenv.config({path: "./config.env"});
+  dotenv.config();
 
   let uri : string = process.env.ATLAS_URI as string;
   let dbName : string = process.env.DB_NAME as string;
@@ -38,7 +32,7 @@ async function connectToDatabase() {
 
   // Connect to the database with the name specified in .env
   const db = client.db(dbName);
-  
+  return db
   // Apply schema validation to the collection
   await applySchemaValidation(db);
 
@@ -65,28 +59,31 @@ async function applySchemaValidation(db: mongoDB.Db) {
               _id: {},
               company: {
                   bsonType: "string",
-                  description: "'company' is required and is a string",
+                  description: "company is required and is a string",
               },
               title: {
                   bsonType: "string",
-                  description: "'title' is required and is a string",
+                  description: "title is required and is a string",
               },
               URL: {
                   bsonType: "string",
-                  description: "'URL' is required and is a string",
+                  description: "URL is required and is a string",
               },
               location: {
                 bsonType: "string",
-                description: "'location' is required and is a string",
+                description: "location is required and is a string",
             },
             applicationRoute: {
               bsonType: "string",
-              description: "'applicationRoute' is required and is a string",
+              description: "applicationRoute is required and is a string",
           },            
           Date: {
             bsonType: "string",
-            description: "'Date' is required and is a string",
-        },
+            description: "Date is required and is a string",
+        }, user_id:  {
+          bsonType: "string",
+          description: "User ID is required and is a string",
+        }
           },
       },
   };
@@ -103,9 +100,10 @@ async function applySchemaValidation(db: mongoDB.Db) {
 }
 
 export default function handler(request: NextApiRequest, response: NextApiResponse) {
+  request.body  = JSON.parse(request.body)
   let db_connect = dbo.getDb("jobsData");
-  const { searchParams } = new URL(request.url!);
-  let id: string;
+  const { hash } = new URL(request.url!);
+  let user_id: string  = request.body.user_id;
   switch (request.method) {
     case 'POST':
       let myobj = {
@@ -122,34 +120,35 @@ export default function handler(request: NextApiRequest, response: NextApiRespon
       };
       db_connect.collection("jobsData").insertOne(myobj, function (err:mongoDB.MongoServerError, res: Job) {
         if (err) throw err;
-        response.json(res);
+        response.status(200).json({...res});
       });  
       break;
     case 'GET':
-      id = searchParams.get('id') || "" as string;
 
-      if (id.length>0) {
-        let myquery = { _id: new ObjectId(id) };
+      if (hash.length>0) {
+        let myquery = { user_id: user_id,
+          _id: new ObjectId(hash) };
         db_connect
           .collection("jobsData")
           .findOne(myquery, function (err: mongoDB.MongoServerError, result: Job) {
             if (err) throw err;
-            response.json(result);
+            response.status(200).json({...result, id: hash});
           });
       } else {
+        let myquery = { user_id: user_id}
         db_connect
           .collection("jobsData")
-          .find({})
+          .find(myquery)
           .toArray(function (err: mongoDB.MongoServerError, result: Job[]) {
             if (err) throw err;
-            response.json(result);
+            response.status(200).json({...result, id: hash});
           });
       }
       break;
     case "PUT":
       
-      id = searchParams.get('id') || "" as string;
-      let myquery = { _id: new ObjectId(id) };
+      let myquery = { user_id: user_id,
+        _id: new ObjectId(hash) };
       let newvalues = {
         $set: {
          company: request.body.company,
@@ -169,18 +168,19 @@ export default function handler(request: NextApiRequest, response: NextApiRespon
         .updateOne(myquery, newvalues, function (err:mongoDB.MongoServerError, res: Job) {
           if (err) throw err;
           console.log("1 document updated");
-          response.json(res);
+          response.status(200).json({...res, id: hash});
         });
       break;
     case "DELETE":
-      id = searchParams.get('id') || "" as string;
-      let query = { _id: new ObjectId(id) };
+      let query = { _id: new ObjectId(hash) };
       db_connect.collection("jobsData").deleteOne(query, function (err: mongoDB.MongoServerError, obj:Job) {
         if (err) throw err;
         console.log("1 document deleted");
-        response.json(obj);
+        response.status(200).json({...obj, id: hash});
       });
-
+      break;
+    default:
+      console.error("bad request");
 
   }
 }
@@ -258,14 +258,14 @@ export default function handler(request: NextApiRequest, response: NextApiRespon
 
 
 
-connectToDatabase()
-  .then(()=>{
-    server.use("/job-list", jobRouter);
-    server.listen(port, () => {
-      console.log(`Server is running on port: ${port}`);
-    });
-  })
-  .catch((error: Error) => {
-    console.error("Database connection failed", error);
-    process.exit();
-});
+// connectToDatabase()
+//   .then(()=>{
+//     server.use("/job-list", jobRouter);
+//     server.listen(port, () => {
+//       console.log(`Server is running on port: ${port}`);
+//     });
+//   })
+//   .catch((error: Error) => {
+//     console.error("Database connection failed", error);
+//     process.exit();
+// });

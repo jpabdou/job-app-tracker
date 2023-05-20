@@ -1,28 +1,87 @@
-import React, {useState, useEffect } from "react";
+"use client"
+
+import React, {useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { UserContext } from "../../contexts/user.context";
+import { useRouter } from "next/navigation";
 
 interface props {
-    jobList: Job[];
-    setJobList: (jobs: Job[]) => void;
+    editJob: Job | undefined,
+    jobId: string | undefined
   }
-export interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
+export interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string, id?: string};
 
 export default function ManualJobForm(props: props) {
+
+
+    const { user} = useContext(UserContext);
+
     const currentDate = new Date().toJSON().slice(0,10);
-    let {jobList, setJobList} = props;
-    let initialManualJobInput :  Job ={company: "", title: "", URL: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
+    const router = useRouter();
+    let {editJob, jobId} = props;
+    let initialManualJobInput :  Job ={company: "", title: "", URL: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", id: undefined};
+    if (editJob)  {
+        initialManualJobInput = editJob;
+    };
+
     const h2Setting = "text-2xl text-left";
     const h3Setting = "text-1xl text-left";
-    const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto"
+    const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto";
     const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
     const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
-
-    const highlightRequiredSetting = "bg-yellow-400"
+    const highlightRequiredSetting = "bg-yellow-400";
 
     const [manualJob, setManualJob] = useState(initialManualJobInput);
     const [manualDisabled, setManualDisabled] = useState(true);
     const [highlightOn, setHighlightOn] = useState(false);
+
+    const updateJob = async (job: Job, jobId: string) => {
+        const updateReq = {
+            method: "PUT",
+            body: JSON.stringify({...job, user_id: user?.id})
+          };
+        try {
+            let {jobDescription} = job;
+            if (jobDescription.trim().length === 0) {
+                jobDescription = "No Description Added"
+            }
+          const response = await fetch(`http://localhost:3000/api/#${jobId}`, updateReq);
+          return(response.json());
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Axios error message: ', error.message);
+                return error.message;
+              } else {
+                console.error('unexpected error: ', error);
+                return 'An unexpected error occurred';
+              }        
+            }
+      };
+
+      const postJob = async (job: Job) => {
+        const postReq = {
+            method: "POST",
+            body: JSON.stringify({...job, user_id: user?.id})
+          };
+        try {
+            let {jobDescription} = job;
+            if (jobDescription.length === 0) {
+                jobDescription = "No Description Added"
+            }
+          const response = await fetch("http://localhost:3000/api", postReq);
+          return(response.json());
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Axios error message: ', error.message);
+                return error.message;
+              } else {
+                console.error('unexpected error: ', error);
+                return 'An unexpected error occurred';
+              }        
+            }
+      };
 
     const onSubmitJob = (event: React.ChangeEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -30,9 +89,15 @@ export default function ManualJobForm(props: props) {
         if (manualDisabled) {
             setHighlightOn(true)
         } else {
-            const jobEntry: Job = manualJob;
-            setJobList([...jobList, jobEntry]);
-            setManualJob(initialManualJobInput);
+            if (jobId) {
+                updateJob(manualJob, jobId);
+                router.push("/job-list")
+
+            } else {
+                postJob(manualJob);
+                router.push("/job-list");
+            }
+
             setHighlightOn(false)
         }
 
@@ -60,9 +125,10 @@ export default function ManualJobForm(props: props) {
     const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["URL","URL"],["dateApplied","Application Date"]];
     const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor", "Other"];
     const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
-    
+
     const jobTest = (requiredElements: Array<string>, job: Job) =>{
-        return requiredElements.some(ele=>{return job[ele as keyof Job].trim().length === 0});
+        
+        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, "id">].trim().length === 0});
 
     };
 
@@ -82,7 +148,7 @@ export default function ManualJobForm(props: props) {
                 {inputArr.map(inputElement=>{
                     return( 
                         <div key={inputElement[0]} className={divInputSetting}>
-                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job].trim().length ===0 && highlightRequiredSetting}`}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job as Exclude<keyof Job, "id">].trim().length ===0 && highlightRequiredSetting}`}>
                         Enter {inputElement[1]}:</label>
                         <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
                         

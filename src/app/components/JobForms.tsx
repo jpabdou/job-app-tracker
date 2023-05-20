@@ -1,3 +1,5 @@
+"use client"
+
 import React, {useState, useEffect } from "react";
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
@@ -66,15 +68,20 @@ export default function JobForms(props: props) {
         setJob(jobEntry, index);
 
     };
-    const config = {
-        headers:{
-            "Content-Type": "application/json"
-        }
-      };
+
 
     const postJob = async (job: Job) => {
+        const config = {
+            headers:{
+                "Content-Type": "application/json"
+            }
+          };
         try {
-          const response = await axios.post("http://localhost:5000/jobs/add", JSON.stringify(job), config);
+            let {jobDescription} = job;
+            if (jobDescription.length === 0) {
+                jobDescription = "No Description Added"
+            }
+          const response = await axios.post("http://localhost:3000/api", JSON.stringify(job), config);
           return(response.data);
         } catch (error) {
             if (axios.isAxiosError(error)) {

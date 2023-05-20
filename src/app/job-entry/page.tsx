@@ -2,8 +2,8 @@
 import React, {useState, useEffect } from "react";
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-import ManualJobForm from "@/components/ManualJobForm";
-import JobForms from "@/components/JobForms";
+import ManualJobForm from "@/app/components/ManualJobForm";
+import JobForms from "@/app/components/JobForms";
 
 export default function JobEntry() {
     const h2Setting = "text-2xl text-left";
@@ -172,7 +172,7 @@ export default function JobEntry() {
 
     const postJob = async (job: Job) => {
         try {
-          const response = await axios.post("http://localhost:5000/jobs/add", job);
+          const response = await axios.post("http://localhost:300/api/add", job);
           if (response.status === 404) {
             return job;
           }
@@ -216,46 +216,9 @@ export default function JobEntry() {
 
             {/* {urlList.map((listing, idx)=>{return(<p key={idx}>{listing}</p>)})} */}
 
-            <ManualJobForm jobList={jobList} setJobList={setJobList} />
+            <ManualJobForm editJob={undefined} jobId={undefined} />
             <br></br>
             <JobForms jobList={jobList} setJobList={setJobList} />
-            {/* <form onSubmit={onSubmitJobList}>
-            <span className={jobDisplaySetting}>
-            {jobList.map((job, idx)=>{
-                return(            
-                    <div className={jobSetting} key={idx}>
-                    <h2 className={h2Setting} >Job #{idx+1}</h2>
-                    <div className={deleteSetting} onClick={()=>{
-                        jobList.splice(idx, 1);
-                        setJobList([...jobList]);}}>Delete Job</div>
-                    {inputArr.map(inputElement=>{
-                    return(                
-                    <label key={`${idx}-${inputElement[0]}`} className={labelSetting}>
-                        {inputElement[1]}: 
-                        <input name={inputElement[0]} className={inputSetting} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={job[inputElement[0] as keyof Job]} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event, idx)} />
-                        <br></br> 
-                    </label>)
-                })}
-                <label className={labelSetting}>
-                    Application Method/Source:
-                    <select name="applicationRoute" onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateInput(event, idx)}>
-                    {applicationRouteArr.map(choice=>{
-                        return(<option key={choice} className={inputSetting} value={choice}>{choice}</option>)
-                    })}
-                    </select>
-
-                </label><br></br>
-                    <label className={labelSetting}>
-                        Job Description:
-                        <textarea className={inputSetting} name="jobDescription" value={job.jobDescription} onChange={(event: React.ChangeEvent<HTMLTextAreaElement>)=>handleJobUpdateInput(event, idx)} />
-                    </label>
-                    </div>
-                )
-            })}
-            </span>
-                                {jobList.length >0 ? <button className={buttonSetting}>Submit Job Entries to Your Job List</button> : null}                
-        </form> */}
-
         </div>
     )
   }
