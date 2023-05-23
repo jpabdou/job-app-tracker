@@ -7,8 +7,8 @@ export default function LogInLink() {
     const { user } = useContext(UserContext);
 
     return(
-      <>        
+      <div>        
       {!user && <Link href="/login" >Login</Link>}
-      </>
+      </div>
 
     )}

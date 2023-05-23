@@ -1,11 +1,10 @@
 "use client"
 import React, { FC, createContext,useContext , useState } from "react";
 import Realm, { App, Credentials } from "realm-web";
-import { APP_ID } from "../realm/constants";
 
  
 // Creating a Realm App Instance
-const app = new App(APP_ID);
+const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
  
 // Creating a user context to manage and access all the user related functions
 // across different components and pages.
@@ -13,6 +12,8 @@ const app = new App(APP_ID);
 interface Values{
   user: Realm.User|  undefined,
   setUser: (user: Realm.User| undefined) => void,
+  token: string | null,
+  setToken: (token: string | null) => void,
   fetchUser: () => Promise<boolean | Realm.User>,
   logOutUser: ()=>Promise<boolean>,
   emailPasswordLogin: (email: string, password: string)=> Promise<Realm.User>,
@@ -32,7 +33,7 @@ interface Props {
  
 export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
- 
+ const [token, setToken] = useState<string | null>(null);
  // Function to log in user into our App Service app using their email & password
  const emailPasswordLogin = async (email: string, password: string) => {
    const credentials = Credentials.emailPassword(email, password);
@@ -42,7 +43,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  };
 
  const emailPasswordReset = async (email: string, password: string) => {
-  await app.emailPasswordAuth.callResetPasswordFunction({email, password});
+  await app.emailPasswordAuth.sendResetPasswordEmail({email});
   return emailPasswordLogin(email, password);
  }
  
@@ -60,6 +61,9 @@ export const UserProvider: FC<Props>= ({ children }) => {
 
  const getValidAccessToken = async(user: Realm.User) =>{
   await user.refreshAccessToken();
+  let token = user.accessToken;
+  if (token){
+  setToken(token)}
   return user.accessToken;
  }
  
@@ -83,6 +87,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
    try {
      await app.currentUser.logOut();
      // Setting the user to null once loggedOut.
+     setToken(null);
      setUser(undefined);
      return true;
    } catch (error) {
@@ -91,7 +96,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  }
 
  
- return <UserContext.Provider value={{ user, setUser, fetchUser, emailPasswordLogin, emailPasswordSignup, logOutUser, emailPasswordReset, getValidAccessToken }}>
+ return <UserContext.Provider value={{ user, setUser, token, setToken, fetchUser, emailPasswordLogin, emailPasswordSignup, logOutUser, emailPasswordReset, getValidAccessToken }}>
    {children}
  </UserContext.Provider>;
 }

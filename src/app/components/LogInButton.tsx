@@ -10,6 +10,6 @@ export default function LogInButton() {
     const router = useRouter();
 
     return(
-        <>{!user && <Button variant="contained" onClick={()=>{router.push("/login")}}>LogIn</Button>}
-        </>
+        <div>{!user && <Button variant="contained" onClick={()=>{router.push("/login")}}>LogIn</Button>}
+        </div>
     )}

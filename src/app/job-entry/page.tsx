@@ -1,9 +1,8 @@
 'use client';
 import React, {useState, useEffect } from "react";
-import axios, { AxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
 import ManualJobForm from "@/app/components/ManualJobForm";
 import JobForms from "@/app/components/JobForms";
+import { Job } from "../../../types/Jobs";
 
 export default function JobEntry() {
     const h2Setting = "text-2xl text-left";
@@ -18,24 +17,23 @@ export default function JobEntry() {
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
     const currentDate = new Date().toJSON().slice(0,10);
-    let initialUrlList : string[] = [];
-    interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
-    let initialManualJobInput :  Job ={company: "", title: "", URL: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
+    let initialurlList : string[] = [];
+    let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
     let initialJobEntries : Job[] = [];
-    interface JobError {company: number[], title: number[], URL: number[], jobDescription: number[], location: number[]};
-    let initialJobErrors : JobError = {company: [], title: [], URL: [], jobDescription: [], location: []};
+    interface JobError {company: number[], title: number[], jobLink: number[], jobDescription: number[], location: number[]};
+    let initialJobErrors : JobError = {company: [], title: [], jobLink: [], jobDescription: [], location: []};
 
-    // const [urlList, setUrlList] = useState(initialUrlList);
+    // const [urlList, seturlList] = useState(initialurlList);
     const [jobList, setJobList] = useState(initialJobEntries);
 
     
     // const handleChange= (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     //     let val: string = event.target.value;
-    //     setUrlList(val.split("\n"));
+    //     seturlList(val.split("\n"));
 
     // }
 
-    // const onSubmitUrlList = async (event: React.ChangeEvent<HTMLFormElement>) => {
+    // const onSubmiturlList = async (event: React.ChangeEvent<HTMLFormElement>) => {
     //     event.preventDefault();
     //     for (let url of urlList) {  
     //         try {
@@ -75,7 +73,7 @@ export default function JobEntry() {
     //                 const companyName =  $(selectors.company).text();
     //                 const location =  $(selectors.place).text();
     //                 const jobDescription =    $(selectors.description).text();
-    //                 let jobEntry: Job = {"company": companyName, "title": jobTitle, "location": location,"URL": url, "jobDescription": jobDescription};
+    //                 let jobEntry: Job = {"company": companyName, "title": jobTitle, "location": location,"url": url, "jobDescription": jobDescription};
     //                 setJobList([...jobList, jobEntry]);
 
     //             // const scraper = new LinkedinScraper({
@@ -153,7 +151,7 @@ export default function JobEntry() {
     //     }
 
 
-    //     setUrlList(initialUrlList);
+    //     seturlList(initialurlList);
     // }
 
 
@@ -161,57 +159,56 @@ export default function JobEntry() {
 
 
 
-    const handleJobUpdateInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement> , index: number) => {
-        let val: string = event.target.value;
-        let name: string = event.target.name;
-        let jobEntry: Job = jobList[index];
-        jobEntry = {...jobEntry, [name]:val};
-        jobList.splice(index, 1, jobEntry);
-        setJobList([...jobList]);
-    }
+    // const handleJobUpdateInput= (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement> , index: number) => {
+    //     let val: string = event.target.value;
+    //     let name: string = event.target.name;
+    //     let jobEntry: Job = jobList[index];
+    //     jobEntry = {...jobEntry, [name]:val};
+    //     jobList.splice(index, 1, jobEntry);
+    //     setJobList([...jobList]);
+    // }
 
-    const postJob = async (job: Job) => {
-        try {
-          const response = await axios.post("http://localhost:300/api/add", job);
-          if (response.status === 404) {
-            return job;
-          }
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                console.error('Axios error message: ', error.message);
-                return error.message;
-              } else {
-                console.error('unexpected error: ', error);
-                return 'An unexpected error occurred';
-              }        
-            }
-      }
+    // const postJob = async (job: Job) => {
+    //     try {
+    //       const response = await axios.post("http://localhost:300/api/add", job);
+    //       if (response.status === 404) {
+    //         return job;
+    //       }
+    //     } catch (error) {
+    //         if (axios.isAxiosError(error)) {
+    //             console.error('Axios error message: ', error.message);
+    //             return error.message;
+    //           } else {
+    //             console.error('unexpected error: ', error);
+    //             return 'An unexpected error occurred';
+    //           }        
+    //         }
+    //   }
 
-      const onSubmitJobList = async (event: React.ChangeEvent<HTMLFormElement>) =>{
-        event.preventDefault();
-        const promises = jobList.map((job) => postJob(job));
-        const results = await Promise.all(promises);
-        console.log(results);
-        setJobList(initialJobEntries);
+    //   const onSubmitJobList = async (event: React.ChangeEvent<HTMLFormElement>) =>{
+    //     event.preventDefault();
+    //     const promises = jobList.map((job) => postJob(job));
+    //     const results = await Promise.all(promises);
+    //     setJobList(initialJobEntries);
 
 
-      }
+    //   }
 
-      const requiredArr:  Array<string> = ["company", "title", "URL", "location"];
-      const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["URL","URL"],["dateApplied","Application Date"]];
-      const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"];
-      const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
+    //   const requiredArr:  Array<string> = ["company", "title", "jobLink", "location"];
+    //   const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["jobLink","Job Link"],["dateApplied","Application Date"]];
+    //   const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"];
+    //   const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
 
     return (
         <div className="w-full">
-            {/* <form onSubmit={onSubmitUrlList}>
+            {/* <form onSubmit={onSubmiturlList}>
                 <label>
-                    Enter URLs to LinkedIn jobs that you want to parse separated by line:
+                    Enter urls to LinkedIn jobs that you want to parse separated by line:
                     <br></br>
                     <textarea value={urlList.join("\n")} onChange={handleChange} rows={10} cols={50} />
                 </label>
                 <br></br>
-                <button>Search URLs for relevant information</button>
+                <button>Search urls for relevant information</button>
             </form> */}
 
             {/* {urlList.map((listing, idx)=>{return(<p key={idx}>{listing}</p>)})} */}

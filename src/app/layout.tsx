@@ -4,7 +4,7 @@ import LogOutLink from '@/app/components/LogOutLink';
 import LogInLink from '@/app/components/LogInLink';
 import SignUpLink from '@/app/components/SignUpLink';
 import React, { ReactNode } from 'react'
-
+import { UserProvider } from '@/contexts/user.context';
 export const metadata = {
   title: 'Job Application Tracker',
   description: 'Created with MongoDB, Express, Next, and Node',
@@ -27,7 +27,7 @@ export default function RootLayout({ children}: Props) {
         <LogOutLink />
         </div>
 
-        {children}
+        <UserProvider>{children}</UserProvider>
         </div>
       </body>
     </html>

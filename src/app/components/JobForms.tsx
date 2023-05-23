@@ -9,11 +9,11 @@ interface props {
     jobList: Job[];
     setJobList: (jobs: Job[]) => void;
   }
-interface Job {company: string, title: string, URL: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
+interface Job {company: string, title: string, jobLink: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
 
 export default function JobForms(props: props) {
-    interface JobError {company: number[], title: number[], URL: number[], jobDescription: number[], location: number[]};
-    // let initialJobErrors : JobError = {company: [], title: [], URL: [], jobDescription: [], location: []};
+    interface JobError {company: number[], title: number[], jobLink: number[], jobDescription: number[], location: number[]};
+    // let initialJobErrors : JobError = {company: [], title: [], jobLink: [], jobDescription: [], location: []};
 
     let {jobList, setJobList} = props;
 
@@ -101,7 +101,6 @@ export default function JobForms(props: props) {
         } else {
         const promises = jobList.map((job) => postJob(job));
         const results = await Promise.all(promises);
-        console.log(results);
         setJobList(initialJobEntries);
         setHighlightOn(false);
         setErrors(initialErrors);
@@ -111,8 +110,8 @@ export default function JobForms(props: props) {
 
       }
 
-      const requiredArr:  Array<string> = ["company", "title", "URL", "location"];
-      const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["URL","URL"],["dateApplied","Application Date"]];
+      const requiredArr:  Array<string> = ["company", "title", "jobLink", "location"];
+      const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["jobLink","URL"],["dateApplied","Application Date"]];
       const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor", "Other"];
       const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
       
@@ -124,7 +123,7 @@ export default function JobForms(props: props) {
     };
 
       const errorSetting = (index: number) => {
-        const requiredArr:  Array<string> = ["company", "title", "URL", "location"];
+        const requiredArr:  Array<string> = ["company", "title", "jobLink", "location"];
 
         let job = jobList[index];
         if (jobTest(requiredArr, job)) {

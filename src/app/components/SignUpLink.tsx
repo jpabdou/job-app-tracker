@@ -7,8 +7,8 @@ export default function SignUpLink() {
     const { user } = useContext(UserContext);
 
     return(
-      <>        
+      <div>        
       {!user && <Link href="/signup" >SignUp</Link>}
-      </>
+      </div>
 
     )}
