@@ -107,7 +107,7 @@ const LogInForm = () => {
    <button className={buttonSetting} onClick={()=>{setForm({...form, action: "reset"})}}>
      Reset Password
    </button>
-   <p>Don't have an account? <Link className="underline font-semibold" href="/signup">Signup</Link></p>
+   <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Signup</Link></p>
    </div>
  </form>
  </div>)
