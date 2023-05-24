@@ -1,11 +1,10 @@
 import { Job } from "../../../../../types/Jobs";
 import runMiddleware from "../../middleware";
-import { NextApiResponse, NextApiRequest } from 'next';
+import { NextResponse, NextRequest } from 'next/server';
 import * as mongoDB from "mongodb";
 
 const ObjectId = mongoDB.ObjectId;
 import clientPromise from "../../../../../lib/mongodb";
-const collections: { jobs?: mongoDB.Collection<Job> } = {};
 
 async function applySchemaValidation(db: mongoDB.Db) {
   let collectionName : string = process.env.COLLECTION_NAME as string;
@@ -59,7 +58,7 @@ async function applySchemaValidation(db: mongoDB.Db) {
   });
 }
 
-export async function DELETE(request: NextApiRequest, response: NextApiResponse) {
+export async function DELETE(request: NextRequest) {
     if (request.method === 'DELETE') {
     try {
       const client = await clientPromise;
@@ -69,11 +68,11 @@ export async function DELETE(request: NextApiRequest, response: NextApiResponse)
       let query = { _id: new ObjectId(hash), user_id: user_id };
       let deleteResult = await db_connect.collection("jobsData").deleteOne(query);
         console.log("1 document deleted");
-        return response.status(200).json(deleteResult);
+        return NextResponse.json({data: deleteResult});
     } catch (e) {
         console.error(e)
       }
     } else{
-        response.status(405).json({message: "Method Not Allowed"})
+        NextResponse.json({message: "Method Not Allowed"})
     }
     }

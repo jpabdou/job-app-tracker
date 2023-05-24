@@ -1,13 +1,12 @@
 import Cors from 'cors'
-import { NextApiResponse, NextApiRequest } from 'next';
-
+import { NextRequest, NextResponse } from 'next/server'
 const cors = Cors({
     methods: ['POST', 'GET', 'DELETE', 'PUT', 'HEAD'],
   })
 
 export default function runMiddleware(
-    req: NextApiRequest,
-    res: NextApiResponse,
+    req: NextRequest,
+    res: NextResponse,
     fn: Function
   ) {
     return new Promise((resolve, reject) => {

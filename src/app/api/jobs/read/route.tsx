@@ -1,11 +1,9 @@
 import { Job } from "../../../../../types/Jobs";
 import runMiddleware from "../../middleware";
-import { NextApiResponse, NextApiRequest } from 'next';
 import * as mongoDB from "mongodb";
 import { NextResponse, NextRequest } from 'next/server';
 const ObjectId = mongoDB.ObjectId;
 import clientPromise from "../../../../../lib/mongodb";
-const collections: { jobs?: mongoDB.Collection<Job> } = {};
 
 async function applySchemaValidation(db: mongoDB.Db) {
   let collectionName : string = process.env.COLLECTION_NAME as string;
