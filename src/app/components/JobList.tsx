@@ -53,13 +53,13 @@ export default function JobList() {
     },[])
 
     return(
-        <div>
-            {jobs.length>0 && jobs.map(job=>{
+        <div className="m-5 text-center">
+            {jobs.length>0 ? jobs.map(job=>{
                 return(
                 <div key={job._id.toString()}>
                     <Link href={`/job-list/${job._id.toString()}`}>{job.title}-{job.company}</Link>
                 </div>)
-            })}
+            }) : <h1>No Jobs Added</h1>}
         </div>
     )
 }

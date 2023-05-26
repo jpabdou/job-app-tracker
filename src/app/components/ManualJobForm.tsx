@@ -152,10 +152,15 @@ export default function ManualJobForm(props: props) {
         manualErrorSetting();
         },[manualJob]);
 
-
+    useEffect(()=>{
+        if (!user) {
+            router.push("/login")
+            alert("Not Logged In")
+        }
+    },[])
 
     return (
-        <div className="w-full">
+        <div className="w-full m-5 text-center">
             <h2 className={h2Setting}>Manually enter the job below:</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{

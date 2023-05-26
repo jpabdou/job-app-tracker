@@ -6,6 +6,7 @@ import { UserContext } from '../contexts/user.context';
 import LogOutLink from '@/app/components/LogOutLink';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import NavBar from './components/NavBar';
 
 
 export default function Page() {
@@ -34,23 +35,27 @@ useEffect(() => {
   loadToken(); // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
+
  return (
-  <div className='w-full my-10'>
+  <div>
+    <NavBar />
+  <div className='w-full my-10 text-center'>
    <div className='flex flex-col justify-around w-1/3 mx-auto'>
-     <h1 className="text-2xl">Welcome to the App Job Tracker</h1>
       {!user &&     
       <div className='flex justify-evenly flex-row'>
-          <Link href="/login" className="text-xl underline">Login</Link>
+          <Link href="/login" className="text-2xl underline">Login</Link>
           <h2 className="text-xl"> Or </h2>
-          <Link href="/signup" className="text-xl underline">Signup</Link>
+          <Link href="/signup" className="text-2xl underline">Signup</Link>
       </div>
      }
      {user && 
-     <div className='flex justify-evenly flex-row'>
+     <div className='flex justify-evenly flex-row text-2xl underline'>
       <LogOutLink />
       </div>}
    </div>
   </div>
+  </div>
+
 
  )
 }

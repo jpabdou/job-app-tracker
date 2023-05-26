@@ -3,6 +3,7 @@ import React, {useState, useEffect } from "react";
 import ManualJobForm from "@/app/components/ManualJobForm";
 import JobForms from "@/app/components/JobForms";
 import { Job } from "../../../types/Jobs";
+import NavBar from "../components/NavBar";
 
 export default function JobEntry() {
     const h2Setting = "text-2xl text-left";
@@ -200,7 +201,8 @@ export default function JobEntry() {
     //   const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
 
     return (
-        <div className="w-full">
+        <div className="w-full m-5 text-center">
+          <NavBar />
             {/* <form onSubmit={onSubmiturlList}>
                 <label>
                     Enter urls to LinkedIn jobs that you want to parse separated by line:

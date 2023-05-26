@@ -5,41 +5,42 @@ import React, { useContext, useEffect, useState } from "react";
 import Link from 'next/link'
 import { UserContext, UserProvider } from "../../contexts/user.context";
 import { useRouter } from 'next/navigation';
+
+interface props {
+  reset: boolean,
+  token: string | undefined,
+  tokenId: string | undefined
+}
  
-const LogInForm = () => {
+const LogInForm = (props: props) => {
     const router = useRouter();
-
+    const {reset, token, tokenId} = props;
     const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
+    const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
- // We are consuming our user-management context to
- // get & set the user details here
- const { user, fetchUser, emailPasswordLogin, emailPasswordReset } = useContext(UserContext);
+ const { user, fetchUser, emailPasswordLogin, sendResetPasswordEmail, validateEmail, validatePassword, emailPasswordReset } = useContext(UserContext);
  
- // We are using React's "useState" hook to keep track
- //  of the form values.
  const [form, setForm] = useState({
    email: "",
    password: "",
-   action: "login"
+   action: "login",
+   errors: {email: "", password: ""}
  });
- 
- // This function will be called whenever the user edits the form.
+ const [disabled, setDisabled] = useState(true)
+ const [resetDisabled, setResetDisabled] = useState(true)
+ const [displayError, setDisplayError] = useState(false)
+
  const onFormInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
    const { name, value } = event.target;
    setForm({ ...form, [name]: value });
  };
  
- // This function will redirect the user to the
- // appropriate page once the authentication is done.
+
  const redirectNow = () => {
-   router.push("/");
+   router.push("/job-list");
  }
  
- // Once a user logs in to our app, we don’t want to ask them for their
- // credentials again every time the user refreshes or revisits our app, 
- // so we are checking if the user is already logged in and
- // if so we are redirecting the user to the home page.
- // Otherwise we will do nothing and let the user to login.
+ // Checking if the user is already logged in and if so, redirecting the user to the home page. Otherwise, lets the user to login.
  const loadUser = async () => {
    if (!user) {
      const fetchedUser = await fetchUser();
@@ -50,21 +51,26 @@ const LogInForm = () => {
    }
  }
  
- // This useEffect will run only once when the component is mounted.
- // Hence this is helping us in verifying whether the user is already logged in
- // or not.
  useEffect(() => {
    loadUser(); // eslint-disable-next-line react-hooks/exhaustive-deps
  }, []);
+
+ useEffect(()=>{
+    setDisabled(validateEmail(form.email) || validatePassword(form.password))
+    setResetDisabled(validatePassword(form.password))
+    setForm({...form, errors: {email: validateEmail(form.email) ? "Enter valid email" : "", 
+    password: validatePassword(form.password) ? 'Enter valid password of 7 to 20 characters length with at least 1 captial letter, 1 lowercase letter, and 1 number' : ""}})
+ },[form.password, form.email])
  
- // This function gets fired when the user clicks on the "Login" button.
  const onSubmit = async (event : React.ChangeEvent<HTMLFormElement>) => {
    try {
-     // Here we are passing user details to our emailPasswordLogin
-     // function that we imported from our realm/authentication.js
-     // to validate the user credentials and log in the user into our App.
      if (form.action === "reset"){
-      await emailPasswordReset(form.email, form.password);}
+      if (reset) { 
+        await emailPasswordReset(form.email, form.password, token!, tokenId!)
+      } else {
+        await sendResetPasswordEmail(form.email);
+      }
+      }
      else {
       await emailPasswordLogin(form.email, form.password);}
      
@@ -72,7 +78,7 @@ const LogInForm = () => {
        redirectNow();
      }
    } catch (error) {
-       alert(error);
+       console.error(error);
       
  
    }
@@ -80,8 +86,8 @@ const LogInForm = () => {
  
  return ( 
  <div>
-  <form style={{ display: "flex", flexDirection: "column", maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
-   <h1>Login</h1>
+  <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
+   <h2 className="text-xl m-5 text-center">{reset ? "Reset Password" : "Login"}</h2>
    <TextField
      label="Email"
      type="email"
@@ -89,26 +95,30 @@ const LogInForm = () => {
      name="email"
      value={form.email}
      onChange={onFormInputChange}
-     style={{ marginBottom: "1rem" }}
+     style={{ marginBottom: "1rem" , width: "20rem", textAlign: 'center'}}
    />
    <TextField
-     label="Password"
+     label="Password (7-20 characters; at least 1 captial letter, 1 lowercase letter, and 1 number; @#.!$%^?~- characters permitted)"
      type="password"
      variant="outlined"
      name="password"
      value={form.password}
      onChange={onFormInputChange}
-     style={{ marginBottom: "1rem" }}
+     style={{ marginBottom: "1rem", textAlign: 'center', width: "45rem"}}
    />
-   <div className="w-full">
-   <button className={buttonSetting}>
+     {displayError && <div>
+    <p>{form.errors.email}</p>
+    <p>{form.errors.password}</p></div>
+    }
+   {!reset &&    
+   <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
      Login
-   </button>
-   <button className={buttonSetting} onClick={()=>{setForm({...form, action: "reset"})}}>
-     Reset Password
+   </button>}
+   <button className={buttonSetting} disabled={reset ? disabled : resetDisabled} onClick={()=>{setForm({...form, action: "reset"}) 
+      setDisplayError(disabled ? true : false)}}>
+     {reset ? "Reset Password" : "Send Password Reset Email"}
    </button>
    <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Signup</Link></p>
-   </div>
  </form>
  </div>)
 

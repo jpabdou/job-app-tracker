@@ -145,7 +145,7 @@ export default function JobForms(props: props) {
         },[errors]);
 
     return (
-        <div className="w-full">
+        <div className="w-full m-5 text-center">
             <form onSubmit={onSubmitJobList}>
             <span className={jobDisplaySetting}>
             {jobList.map((job, idx)=>{

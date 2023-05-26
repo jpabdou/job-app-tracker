@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 
 export default function LogOutLink() {
     const { logOutUser, user } = useContext(UserContext);
+
+
     const router = useRouter();
     const logOut = async () => {
         try {
@@ -22,7 +24,7 @@ export default function LogOutLink() {
       }
     return(
       <div>
-        {user && <Link className="text-xl underline" href="/" onClick={logOut}>Logout</Link>}
+        {user ? <Link href="/" onClick={logOut}>Logout</Link> : null}
       </div>
 
     )}

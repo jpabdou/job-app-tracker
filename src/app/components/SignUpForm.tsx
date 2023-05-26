@@ -9,14 +9,17 @@ import { useRouter } from 'next/navigation';
 const Signup = () => {
  const router = useRouter();
  const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
+ const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
  // As explained in the Login page.
- const { user, emailPasswordSignup, fetchUser } = useContext(UserContext);
+ const { user, emailPasswordSignup, fetchUser, validateEmail, validatePassword } = useContext(UserContext);
  const [form, setForm] = useState({
    email: "",
-   password: ""
+   password: "",
+   errors: {email: "", password: ""}
  });
  const [disabled, setDisabled] = useState(true)
+ const [displayError, setDisplayError] = useState(false)
  
  // As explained in the Login page.
  const onFormInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +42,7 @@ const Signup = () => {
   // This function will redirect the user to the
  // appropriate page once the authentication is done.
  const redirectNow = () => {
-  router.push("/");
+  router.push("/job-list");
 }
 
 // Once a user logs in to our app, we don’t want to ask them for their
@@ -65,48 +68,41 @@ useEffect(() => {
 }, []);
 
 
- function validateEmail(mail: string) 
-{
- if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))
-  {
-    return (false)
-  }
-    return (true)
-}
-
- useEffect(()=>{
-  if (validateEmail(form.email) && form.password.trim().length < 5 ) {
-    setDisabled(true)
-  } else {
-    setDisabled(false)
-  }
- },[form])
+useEffect(()=>{
+  setDisabled(validateEmail(form.email) || validatePassword(form.password))
+  setForm({...form, errors: {email: validateEmail(form.email) ? "Enter valid email" : "", 
+  password: validatePassword(form.password) ? 'Enter valid password of 7 to 20 characters length with at least 1 captial letter, 1 lowercase letter, and 1 number' : ""}})
+},[form.password, form.email])
  
  return( 
  <div>
- <form style={{ display: "flex", flexDirection: "column", maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
-   <h1>Signup</h1>
+  <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
+   <h2 className="text-xl m-5 text-center">Signup</h2>
    <TextField
      label="Email"
      type="email"
      variant="outlined"
      name="email"
      value={form.email}
-     onInput={onFormInputChange}
-     style={{ marginBottom: "1rem" }}
+     onChange={onFormInputChange}
+     style={{ marginBottom: "1rem" , width: "20rem", textAlign: 'center'}}
    />
    <TextField
-     label="Password"
+     label="Password (7-20 characters; at least 1 captial letter, 1 lowercase letter, and 1 number; @#.!$%^?~- characters permitted)"
      type="password"
      variant="outlined"
      name="password"
      value={form.password}
-     onInput={onFormInputChange}
-     style={{ marginBottom: "1rem" }}
+     onChange={onFormInputChange}
+     style={{ marginBottom: "1rem", textAlign: 'center', width: "45rem"}}
    />
-   <div className="w-full">
-   <button className={buttonSetting}>
-     Signup
+   <div className="w-full text-center">
+    {displayError && <div>
+    <p>{form.errors.email}</p>
+    <p>{form.errors.password}</p></div>
+    }
+   <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
+     Sign-Up
    </button>
    <p>Have an account already? <Link className="underline font-semibold" href="/login">Login</Link></p>
    </div>
