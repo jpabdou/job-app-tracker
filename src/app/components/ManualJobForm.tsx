@@ -12,7 +12,7 @@ interface props {
 export default function ManualJobForm(props: props) {
 
 
-    const { user,token } = useContext(UserContext);
+    const { user,token, trial } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
@@ -22,10 +22,10 @@ export default function ManualJobForm(props: props) {
         initialManualJobInput = editJob!;
     };
 
-    const h2Setting = "text-2xl text-left";
-    const h3Setting = "text-1xl text-left";
+    const h2Setting = "text-2xl text-center";
+    const h3Setting = "text-1xl text-center";
     const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto";
-    const formSetting = "w-1/2 h-1/2 flex flex-col flex-wrap justify-evenly content-left";
+    const formSetting = "h-1/2 flex flex-col flex-wrap justify-evenly content-left";
     const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
@@ -161,7 +161,7 @@ export default function ManualJobForm(props: props) {
 
     return (
         <div className="w-full m-5 text-center">
-            <h2 className={h2Setting}>Manually enter the job below:</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
+            <h2 className={h2Setting}>{jobId ? "View or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{
                     return( 

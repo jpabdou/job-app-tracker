@@ -24,7 +24,7 @@ export default function LogOutLink() {
       }
     return(
       <div>
-        {user ? <Link href="/" onClick={logOut}>Logout</Link> : null}
+        {user ? <Link href="/" onClick={logOut}>Log-out</Link> : null}
       </div>
 
     )}

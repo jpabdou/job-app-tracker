@@ -1,1 +1,2 @@
 export interface Job{company: string, title: string, jobLink: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string, _id?: mongoDB.BSON.ObjectId};
+export interface JobEntry {company: string, title: string,applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string, _id?: mongoDB.BSON.ObjectId};

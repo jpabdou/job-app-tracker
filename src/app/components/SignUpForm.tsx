@@ -31,12 +31,14 @@ const Signup = () => {
  // As explained in the Login page.
  const onSubmit = async (event : React.ChangeEvent<HTMLFormElement>) => {
    try {
-     await emailPasswordSignup(form.email, form.password);
-     if (user) {
-       redirectNow();
-     }
+    event.preventDefault();
+     let result = await emailPasswordSignup(form.email, form.password)
+      alert("Successfully signed up. Check your email for a confirmation link.");
+      console.log(result ? "good" : "bad")
+      redirectNow();
+
    } catch (error) {
-     alert(error);
+     console.error(error);
    }
  };
   // This function will redirect the user to the
@@ -73,11 +75,21 @@ useEffect(()=>{
   setForm({...form, errors: {email: validateEmail(form.email) ? "Enter valid email" : "", 
   password: validatePassword(form.password) ? 'Enter valid password of 7 to 20 characters length with at least 1 captial letter, 1 lowercase letter, and 1 number' : ""}})
 },[form.password, form.email])
+
+
+const [hasMounted, setHasMounted] = useState(false);
+useEffect(() => {
+  setHasMounted(true);
+}, []);
+if (!hasMounted) {
+  return null;
+}
+
  
  return( 
  <div>
   <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
-   <h2 className="text-xl m-5 text-center">Signup</h2>
+   <h2 className="text-xl m-5 text-center">Sign-up</h2>
    <TextField
      label="Email"
      type="email"
@@ -102,9 +114,9 @@ useEffect(()=>{
     <p>{form.errors.password}</p></div>
     }
    <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
-     Sign-Up
+     Sign-up
    </button>
-   <p>Have an account already? <Link className="underline font-semibold" href="/login">Login</Link></p>
+   <p>Have an account already? <Link className="underline font-semibold" href="/login">Log-in</Link></p>
    </div>
  </form>
  </div>

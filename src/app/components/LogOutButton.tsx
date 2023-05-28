@@ -22,6 +22,6 @@ export default function LogOutButton() {
         }
       }
     return(
-        <div>{user && <Button variant="contained" onClick={logOut}>Logout</Button>}
+        <div>{user && <Button variant="contained" onClick={logOut}>Log-out</Button>}
         </div>
     )}

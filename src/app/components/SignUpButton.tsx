@@ -10,6 +10,6 @@ export default function SignUpButton() {
     const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
     return(
-        <div>{!user && <button className={buttonSetting} onClick={()=>{router.push("/signup")}}>SignUp</button>}
+        <div>{!user && <button className={buttonSetting} onClick={()=>{router.push("/signup")}}>Sign-up</button>}
         </div>
     )}

@@ -4,10 +4,16 @@ import JobList from "../components/JobList";
 import NavBar from "../components/NavBar";
 
 export default function JobListings() {
-
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
+    if (!hasMounted) {
+      return null;
+    }
     return(
-        <div className="m-5 text-center">
-            <NavBar />
+        <div>
+            {/* <NavBar /> */}
             <JobList  />
         </div>
     )

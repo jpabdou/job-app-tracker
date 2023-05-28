@@ -4,6 +4,8 @@ import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
 import Link from "next/link";
+import JobCard from "./JobEntry";
+import { Table, TableRow, TableHead, TableCell, TableBody, Box } from "@mui/material";
 
 export default function JobList() {
     const { user, token } = useContext(UserContext);
@@ -34,6 +36,10 @@ export default function JobList() {
             }
             let result = await res.json(); 
             setJobs(result.data);
+            if (result.data.length === 0) {
+                router.push("/job-entry")
+                alert("No jobs found. Enter a job first.")
+            }
         } catch (e) {
             console.error(e)
         }
@@ -43,8 +49,6 @@ export default function JobList() {
     useEffect(()=>{
         if (id) {
             getJobs(id)
-    
-    
         } else {
             router.push("/login")
             alert("Not Logged In")
@@ -52,14 +56,51 @@ export default function JobList() {
         }
     },[])
 
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
+    if (!hasMounted) {
+      return null;
+    }
+ 
     return(
-        <div className="m-5 text-center">
-            {jobs.length>0 ? jobs.map(job=>{
+        <Box sx={{ display: { xs: 'none', sm:'none', md: 'none', lg: 'block', xl:'block'}}}>
+        <Table style={{ width: '100%' }} aria-label="simple table">
+                    <TableHead>
+                        <TableRow key={'header row'}>                        
+                            <TableCell className="text-xl font-bold">Job Title - Company</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Date Applied</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Application Route</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Followed up by Email?</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Outreach Contact</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Application Status</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Update Job?</TableCell>
+                        </TableRow>
+                    </TableHead>
+            {jobs.length>0 ? jobs.map((job,idx)=>{
                 return(
-                <div key={job._id.toString()}>
-                    <Link href={`/job-list/${job._id.toString()}`}>{job.title}-{job.company}</Link>
-                </div>)
-            }) : <h1>No Jobs Added</h1>}
-        </div>
+                    <JobCard key={idx} editJob={job} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
+                )
+            }) : 
+            <TableBody>
+
+            <TableRow
+            key="not-available"
+            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+          >
+            <TableCell scope="row">No Jobs Found</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+          </TableRow>
+          </TableBody>}
+            </Table>
+        </Box>
+
     )
 }

@@ -20,6 +20,15 @@ export default function Page(){
             console.error(err)
         })
     },[])
+
+    const [hasMounted, setHasMounted] = useState(false);
+    useEffect(() => {
+      setHasMounted(true);
+    }, []);
+    if (!hasMounted) {
+      return null;
+    }
+ 
     return(
         <div>
             <h1>{message}</h1>

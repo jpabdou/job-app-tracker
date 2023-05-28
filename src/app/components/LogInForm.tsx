@@ -13,6 +13,8 @@ interface props {
 }
  
 const LogInForm = (props: props) => {
+
+
     const router = useRouter();
     const {reset, token, tokenId} = props;
     const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
@@ -29,6 +31,7 @@ const LogInForm = (props: props) => {
  const [disabled, setDisabled] = useState(true)
  const [resetDisabled, setResetDisabled] = useState(true)
  const [displayError, setDisplayError] = useState(false)
+
 
  const onFormInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
    const { name, value } = event.target;
@@ -64,6 +67,7 @@ const LogInForm = (props: props) => {
  
  const onSubmit = async (event : React.ChangeEvent<HTMLFormElement>) => {
    try {
+    event.preventDefault();
      if (form.action === "reset"){
       if (reset) { 
         await emailPasswordReset(form.email, form.password, token!, tokenId!)
@@ -84,10 +88,17 @@ const LogInForm = (props: props) => {
    }
  };
  
+ const [hasMounted, setHasMounted] = useState(false);
+ useEffect(() => {
+   setHasMounted(true);
+ }, []);
+ if (!hasMounted) {
+   return null;
+ }
  return ( 
  <div>
   <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
-   <h2 className="text-xl m-5 text-center">{reset ? "Reset Password" : "Login"}</h2>
+   <h2 className="text-xl m-5 text-center">{reset ? "Reset Password" : "Log-in"}</h2>
    <TextField
      label="Email"
      type="email"
@@ -112,13 +123,13 @@ const LogInForm = (props: props) => {
     }
    {!reset &&    
    <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
-     Login
+     Log-in
    </button>}
    <button className={buttonSetting} disabled={reset ? disabled : resetDisabled} onClick={()=>{setForm({...form, action: "reset"}) 
       setDisplayError(disabled ? true : false)}}>
      {reset ? "Reset Password" : "Send Password Reset Email"}
    </button>
-   <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Signup</Link></p>
+   <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Sign-up</Link></p>
  </form>
  </div>)
 

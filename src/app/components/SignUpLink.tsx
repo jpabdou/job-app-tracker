@@ -9,7 +9,7 @@ export default function SignUpLink() {
  
     return(
       <div>        
-      {!user ? <Link href="/signup" >SignUp</Link> : <Link href="/Profile" >Profile</Link>}
+      {!user ? <Link href="/signup" >Sign-up</Link> : <Link href="/profile" >Profile</Link>}
       </div>
 
     )}

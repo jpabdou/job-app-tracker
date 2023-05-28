@@ -9,7 +9,7 @@ export default function LogInLink() {
 
     return(
       <div>        
-      {!user ? <Link href="/login" >Login</Link> : <LogOutLink />}
+      {!user ? <Link href="/login" >Log-in</Link> : <LogOutLink />}
       </div>
 
     )}

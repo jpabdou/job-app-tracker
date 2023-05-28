@@ -43,7 +43,7 @@ export default function EditJobForm( ) {
 
     return(
       <div className="m-5 text-center">
-        <NavBar />
+        {/* <NavBar /> */}
         {editJob !==undefined && <ManualJobForm editJob={editJob} jobId={jobId} /> }
 
       </div>

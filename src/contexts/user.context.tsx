@@ -14,16 +14,18 @@ interface Values{
   setUser: (user: Realm.User| undefined) => void,
   token: string | null,
   setToken: (token: string | null) => void,
+  trial: boolean,
+  setTrial: (trial: boolean) => void,
   fetchUser: () => Promise<boolean | Realm.User>,
   logOutUser: ()=>Promise<boolean>,
   emailPasswordLogin: (email: string, password: string)=> Promise<Realm.User>,
-  emailPasswordSignup: (email: string, password: string)=> Promise<Realm.User>,
+  emailPasswordSignup: (email: string, password: string)=> Promise<boolean>,
   getValidAccessToken: (user: Realm.User) => Promise<string | null>,
-  confirmUser: (tokenInput: string, tokenIdInput: string) => Promise<void>,
+  confirmUser: (tokenInput: string, tokenIdInput: string) => Promise<boolean | undefined>,
   sendResetPasswordEmail: (email: string) => Promise<void>,
   validateEmail: (email: string) => boolean,
   emailPasswordReset: (email: string, password: string, token: string, tokenId: string) => Promise<Realm.User>,
-  validatePassword: (password: string) => boolean
+  validatePassword: (password: string) => boolean 
  }
 
 const defaultUser = {} as Values;
@@ -38,8 +40,8 @@ interface Props {
 export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
  const [token, setToken] = useState<string | null>(null);
+ const [trial, setTrial] = useState<boolean>(false);
 
- // Function to log in user into our App Service app using their email & password
  const emailPasswordLogin = async (email: string, password: string) => {
    const credentials = Credentials.emailPassword(email, password);
    const authenticatedUser = await app.logIn(credentials);
@@ -56,13 +58,10 @@ export const UserProvider: FC<Props>= ({ children }) => {
   }
  }
  
- // Function to sign up user into our App Service app using their email & password
  const emailPasswordSignup = async (email: string, password: string) => {
    try {
      await app.emailPasswordAuth.registerUser({email, password});
-     // Since we are automatically confirming our users, we are going to log in
-     // the user using the same credentials once the signup is complete.
-     return emailPasswordLogin(email, password);
+     return true;
    } catch (error) {
      throw error;
    }
@@ -76,13 +75,10 @@ export const UserProvider: FC<Props>= ({ children }) => {
   return user.accessToken;
  }
  
- // Function to fetch the user (if the user is already logged in) from local storage
  const fetchUser = async () => {
    if (!app.currentUser) return false;
    try {
      await app.currentUser.refreshCustomData();
-     // Now, if we have a user, we are setting it to our user context
-     // so that we can use it in our app across different components.
      setUser(app.currentUser);
      return app.currentUser;
    } catch (error) {
@@ -90,12 +86,10 @@ export const UserProvider: FC<Props>= ({ children }) => {
    }
  }
  
- // Function to logout user from our App Services app
  const logOutUser = async () => {
    if (!app.currentUser) return false;
    try {
      await app.currentUser.logOut();
-     // Setting the user to null once loggedOut.
      setToken(null);
      setUser(undefined);
      return true;
@@ -107,8 +101,8 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const confirmUser = async (tokenInput: string, tokenIdInput: string) => {
   try {
     await app.emailPasswordAuth.confirmUser({ token: tokenInput, tokenId: tokenIdInput });
-    // User email address confirmed.
     alert("Successfully confirmed user.");
+    return true;
   } catch (err) {
     alert(`User confirmation failed: ${err}`);
 }
@@ -144,7 +138,9 @@ const validatePassword = (password: string) =>
     user, 
     setUser, 
     token, 
-    setToken, 
+    setToken,
+    trial,
+    setTrial, 
     fetchUser, 
     emailPasswordLogin, 
     emailPasswordSignup, 
