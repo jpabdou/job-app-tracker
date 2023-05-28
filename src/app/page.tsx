@@ -44,18 +44,18 @@ useEffect(() => {
       <div className='my-2'>
       <h1 className='text-3xl'>What is this app for?</h1>
       --
-      <h2 className='text-2xl'>I made this app to track job applications, what actions have been done for the application, and what are the results for each application. I found that a means of feedback for what application methods and actions work and don't work helps to motivate and inform the job search process and makes it feel less like a lottery.</h2>
+      <h2 className='text-2xl'>I made this app to track job applications, what actions have been done for the application, and what are the results for each application. I found that a means of feedback for what application methods and actions work and don&apos;t work helps to motivate and inform the job search process and makes it feel less like a lottery.</h2>
       </div>
       <div className='my-2'>
-      <h1 className='text-3xl'>Ok, cool. I'm interested. Now what?</h1>
+      <h1 className='text-3xl'>Ok, cool. I&apos;m interested. Now what?</h1>
       --
       <h2 className='text-2xl'>You can get started by either:
       <ul>
-        <li>• Clicking the "Sign-up" link in the navigation bar above or in the links below to sign up with an email and password. You will need to confirm your credentials by email and then log-in.</li>
-        <li>• Clicking the "Log-in" link in the navigation bar above or below and click "Sign in with Trial" to see how app works.</li>
+        <li>• Clicking the &ldquo;Sign-up&rdquo; link in the navigation bar above or in the links below to sign up with an email and password. You will need to confirm your credentials by email and then log-in.</li>
+        <li>• Clicking the &ldquo;Log-in&rdquo; link in the navigation bar above or below and click "Sign in with Trial" to see how app works.</li>
       </ul>
       <br></br>
-      After you have logged in, you can navigate to the "Job Entry" link above to enter your applications and details about your process for each application. After you enter your applications, you can navigate to the "Job List" page where you can view your applications and update each one as they progress or click on the job title link to view and update the job details.
+      After you have logged in, you can navigate to the &ldquo;Job Entry&rdquo; link above to enter your applications and details about your process for each application. After you enter your applications, you can navigate to the &ldquo;Job List&rdquo; page where you can view your applications and update each one as they progress or click on the job title link to view and update the job details.
       </h2>
       
       </div>
