@@ -69,9 +69,9 @@ const LogInForm = (props: props) => {
     try {
       event.preventDefault();
        if (form.action === "login"){
-        await emailPasswordLogin(form.email, form.password);
+        let loggedInUser = await emailPasswordLogin(form.email, form.password);
        
-        if (user) {
+        if (loggedInUser.isLoggedIn) {
           redirectNow();}
         } else {
         if (reset) { 
