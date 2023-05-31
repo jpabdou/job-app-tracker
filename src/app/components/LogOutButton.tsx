@@ -4,11 +4,11 @@ import { Button } from '@mui/material';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/user.context';
 import { useRouter } from 'next/navigation';
-
 export default function LogOutButton() {
-    const { logOutUser, user } = useContext(UserContext);
+    const { logOutUser, user} = useContext(UserContext);
     const router = useRouter();
     const logOut = async () => {
+      if (user){
         try {
           // Calling the logOutUser function from the user context.
           const loggedOut = await logOutUser();
@@ -19,9 +19,11 @@ export default function LogOutButton() {
           }
         } catch (error) {
           alert(error)
+        }} else {
+          console.error("Not Logged In")
         }
       }
     return(
-        <div>{user && <Button variant="contained" onClick={logOut}>Log-out</Button>}
+        <div>{user?.isLoggedIn && <Button variant="contained" onClick={logOut}>Log-out</Button>}
         </div>
     )}

@@ -34,7 +34,6 @@ const Signup = () => {
     event.preventDefault();
      let result = await emailPasswordSignup(form.email, form.password)
       alert("Successfully signed up. Check your email for a confirmation link.");
-      console.log(result ? "good" : "bad")
       redirectNow();
 
    } catch (error) {

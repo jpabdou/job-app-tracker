@@ -64,15 +64,14 @@ export async function GET(request: NextRequest) {
       let db_connect = client.db("jobsData");
       const { hash, searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
-      if (hash.length>0) {      
-        let jobId: string = searchParams.get("jobid") || "";
-
+      let jobId: string = searchParams.get("jobid") || "";
+      if (jobId.length>0) {     
         let myquery = { "user_id": user_id,
           "_id": new ObjectId(jobId) };
         let jobResult = await db_connect
           .collection("jobsData")
           .findOne(myquery);
-       return NextResponse.json({data: {...jobResult, _id: hash}});
+       return NextResponse.json({data: {...jobResult, _id: jobId}});
           
       } else {
           let myquery = { "user_id": user_id}

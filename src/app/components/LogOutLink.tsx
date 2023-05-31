@@ -10,6 +10,7 @@ export default function LogOutLink() {
 
     const router = useRouter();
     const logOut = async () => {
+      if (user){
         try {
           // Calling the logOutUser function from the user context.
           const loggedOut = await logOutUser();
@@ -20,11 +21,13 @@ export default function LogOutLink() {
           }
         } catch (error) {
           alert(error)
+        }} else {
+          console.error("Not Logged In")
         }
       }
     return(
       <div>
-        {user ? <Link href="/" onClick={logOut}>Log-out</Link> : null}
+        {user?.isLoggedIn ? <Link href="/" onClick={logOut}>Log-out</Link> : null}
       </div>
 
     )}

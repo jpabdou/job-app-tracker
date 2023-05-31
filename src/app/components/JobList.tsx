@@ -4,7 +4,7 @@ import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
 import Link from "next/link";
-import JobCard from "./JobEntry";
+import JobRow from "./JobRow";
 import { Table, TableRow, TableHead, TableCell, TableBody, Box } from "@mui/material";
 
 export default function JobList() {
@@ -23,14 +23,10 @@ export default function JobList() {
                 "Content-type": "application/json",
                 "headers": {"Authentication": `Bearer ${token}`}
               };
-            const res = await fetch(`/api/jobs/read?id=${user_id}`, getReq);
-            // The return value is *not* serialized
-            // You can return Date, Map, Set, etc.
-           
-            // Recommendation: handle errors
+            let url : string = `/api/jobs/read?id=${user_id}`
+            const res = await fetch(`${url}`, getReq);
             if (!(res.status === 200)) {
-                router.push("/job-entry");
-              // This will activate the closest `error.js` Error Boundary
+                router.push("/");
               throw new Error('Failed to fetch data');
               
             }
@@ -47,10 +43,10 @@ export default function JobList() {
       }
 
     useEffect(()=>{
-        if (id) {
+      if (id) {
             getJobs(id)
         } else {
-            router.push("/login")
+            router.push("/")
             alert("Not Logged In")
             
         }
@@ -65,6 +61,7 @@ export default function JobList() {
     }
  
     return(
+      <>
         <Box sx={{ display: { xs: 'none', sm:'none', md: 'none', lg: 'block', xl:'block'}}}>
         <Table style={{ width: '100%' }} aria-label="simple table">
                     <TableHead>
@@ -80,7 +77,7 @@ export default function JobList() {
                     </TableHead>
             {jobs.length>0 ? jobs.map((job,idx)=>{
                 return(
-                    <JobCard key={idx} editJob={job} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
+                    <JobRow key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
                 )
             }) : 
             <TableBody>
@@ -101,6 +98,36 @@ export default function JobList() {
           </TableBody>}
             </Table>
         </Box>
+        <Box sx={{ display: { xs: 'block', sm:'block', md: 'block', lg: 'none', xl:'none'}}}>
+        <Table style={{ width: '100%' }} aria-label="simple table">
+                    <TableHead>
+                        <TableRow key={'header row'}>                        
+                            <TableCell className="text-xl font-bold">Job Title - Company</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Date Applied</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Application Status</TableCell>
+                            <TableCell align="center" className="text-xl font-bold">Update Job?</TableCell>
+                        </TableRow>
+                    </TableHead>
+            {jobs.length>0 ? jobs.map((job,idx)=>{
+                return(
+                    <JobRow key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
+                )
+            }) : 
+            <TableBody>
+
+            <TableRow
+            key="not-available"
+            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+          >
+            <TableCell scope="row">No Jobs Found</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+            <TableCell align="center">N/A</TableCell>
+          </TableRow>
+          </TableBody>}
+            </Table>
+        </Box>
+      </>
 
     )
 }

@@ -89,7 +89,7 @@ export async function PUT(request: NextRequest) {
         .collection("jobsData")
         .updateOne(myquery, newvalues);
           console.log("1 document updated");
-         return NextResponse.json({updateResult});
+         return NextResponse.json({data: updateResult});
     } catch (e) {
         console.error(e)
       }

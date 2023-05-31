@@ -20,7 +20,7 @@ const LogInForm = (props: props) => {
     const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
- const { user, fetchUser, emailPasswordLogin, sendResetPasswordEmail, validateEmail, validatePassword, emailPasswordReset } = useContext(UserContext);
+ const { user, fetchUser, loginAnonymous, emailPasswordLogin, sendResetPasswordEmail, validateEmail, validatePassword, emailPasswordReset } = useContext(UserContext);
  
  const [form, setForm] = useState({
    email: "",
@@ -40,7 +40,7 @@ const LogInForm = (props: props) => {
  
 
  const redirectNow = () => {
-   router.push("/job-list");
+   router.push("/");
  }
  
  // Checking if the user is already logged in and if so, redirecting the user to the home page. Otherwise, lets the user to login.
@@ -66,26 +66,23 @@ const LogInForm = (props: props) => {
  },[form.password, form.email])
  
  const onSubmit = async (event : React.ChangeEvent<HTMLFormElement>) => {
-   try {
-    event.preventDefault();
-     if (form.action === "reset"){
-      if (reset) { 
-        await emailPasswordReset(form.email, form.password, token!, tokenId!)
-      } else {
-        await sendResetPasswordEmail(form.email);
-      }
-      }
-     else {
-      await emailPasswordLogin(form.email, form.password);}
-     
-     if (user) {
-       redirectNow();
-     }
-   } catch (error) {
-       console.error(error);
-      
- 
-   }
+    try {
+      event.preventDefault();
+       if (form.action === "login"){
+        await emailPasswordLogin(form.email, form.password);
+       
+        if (user) {
+          redirectNow();}
+        } else {
+        if (reset) { 
+          await emailPasswordReset(form.email, form.password, token!, tokenId!);
+        } else {
+          await sendResetPasswordEmail(form.email);
+        }}
+     } catch (error) {
+         console.error(error);
+  }
+
  };
  
  const [hasMounted, setHasMounted] = useState(false);
@@ -97,7 +94,7 @@ const LogInForm = (props: props) => {
  }
  return ( 
  <div>
-  <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
+  <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "720px", margin: "auto" }} onSubmit={onSubmit}>
    <h2 className="text-xl m-5 text-center">{reset ? "Reset Password" : "Log-in"}</h2>
    <TextField
      label="Email"
@@ -131,6 +128,14 @@ const LogInForm = (props: props) => {
    </button>
    <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Sign-up</Link></p>
  </form>
+ <div className="w-full flex align-center justify-center">
+ <button className={buttonSetting} onClick={async ()=>{
+      loginAnonymous();
+      redirectNow();
+ }}>
+     Use trial account instead of logging in
+   </button>
+ </div>
  </div>)
 
 }

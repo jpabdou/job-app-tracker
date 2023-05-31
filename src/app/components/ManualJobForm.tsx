@@ -12,7 +12,7 @@ interface props {
 export default function ManualJobForm(props: props) {
 
 
-    const { user,token, trial } = useContext(UserContext);
+    const { user,token } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
@@ -47,8 +47,9 @@ export default function ManualJobForm(props: props) {
             "headers": {"Authentication": `Bearer ${token}`}
         };
         try {
+            let url :string = `/api/jobs/update?id=${user?.id}&jobid=${jobId}`
 
-          const response = await fetch(`/api/jobs/update?id=${user?.id}&jobid=${jobId}`, updateReq);
+          const response = await fetch(url, updateReq);
           let job = await response.json();
           return job;
         } catch (error) {
@@ -140,7 +141,7 @@ export default function ManualJobForm(props: props) {
 
     const jobTest = (requiredElements: Array<string>, job: Job) =>{
         
-        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, "_id">].trim().length === 0});
+        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>].trim().length === 0});
 
     };
 
@@ -153,7 +154,7 @@ export default function ManualJobForm(props: props) {
         },[manualJob]);
 
     useEffect(()=>{
-        if (!user) {
+        if (user?.isLoggedIn === false ) {
             router.push("/login")
             alert("Not Logged In")
         }
@@ -166,7 +167,7 @@ export default function ManualJobForm(props: props) {
                 {inputArr.map(inputElement=>{
                     return( 
                         <div key={inputElement[0]} className={divInputSetting}>
-                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job as Exclude<keyof Job, "_id">].trim().length ===0 && highlightRequiredSetting}`}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>].trim().length ===0 && highlightRequiredSetting}`}>
                         Enter {inputElement[1]}:</label>
                         <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
                         

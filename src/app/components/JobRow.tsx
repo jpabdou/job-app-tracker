@@ -7,22 +7,21 @@ import { JobEntry, Job } from "../../../types/Jobs";
 import Link from "next/link";
 
 interface props {
-    editJob: JobEntry,
     jobId: string,
     jobs: Job[];
     setJobs: (jobs: Job[]) => void;
     idx: number;
   }
 
-export default function JobCard(props: props) {
+export default function JobRow(props: props) {
 
 
     const { user,token } = useContext(UserContext);
     const router = useRouter();
 
-    let {editJob, jobs, setJobs, jobId, idx} = props;
-    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
-    initialJobEntryInput = editJob!;
+    let {jobs, setJobs, jobId, idx} = props;
+    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
+    initialJobEntryInput = jobs[idx];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
@@ -37,8 +36,8 @@ export default function JobCard(props: props) {
             "headers": {"Authentication": `Bearer ${token}`}
         };
         try {
-
-          const response = await fetch(`/api/jobs/update?id=${user?.id}&jobid=${jobId}`, updateReq);
+            let url : string =  `/api/jobs/update?id=${user?.id}&jobid=${jobId}`
+          const response = await fetch(`${url}`, updateReq);
           let job = await response.json();
           return job;
         } catch (error) {
@@ -83,18 +82,19 @@ export default function JobCard(props: props) {
 
     useEffect(()=>{
         if (!user) {
-            router.push("/login")
+            router.push("/job-list")
             alert("Not Logged In")
         }
     },[])
 
     return (
-        <TableBody>
+        <>
+            <TableBody>
             <TableRow
             key={`job ${idx+1}`}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{editJob.title} - {editJob.company}</Link></TableCell>
+            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} - {jobEntry.company}</Link></TableCell>
             <TableCell scope="row">{jobs[idx].dateApplied}</TableCell>
             <TableCell align="center">
                 <FormControl>
@@ -162,16 +162,18 @@ export default function JobCard(props: props) {
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{
-                            let target: Job = jobs[idx];
-                            const {applicationRoute, outreachContact, appStatus, emailFollowup} = jobEntry
-                           jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
-                           setJobs([...jobs]);
-                           updateJob(jobEntry, jobId!).then(res=>{
-                            setVisible(false);               
-                        })
+                                let target: Job = jobs[idx];
+                                const {applicationRoute, outreachContact, appStatus, emailFollowup} = jobEntry
+                               jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
+                               setJobs([...jobs]);
+                               updateJob(jobEntry, jobId!).then(res=>{
+                                setVisible(false);               
+                            }
+)
                 }}>Update Job</button> : null } 
             </TableCell>
             </TableRow>
             </TableBody>
+        </>
             );
 };

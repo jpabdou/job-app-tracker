@@ -4,12 +4,12 @@ import { useContext } from 'react';
 import { UserContext } from '../../contexts/user.context';
 import LogOutLink from './LogOutLink';
 export default function LogInLink() {
-  const { user, fetchUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
 
     return(
       <div>        
-      {!user ? <Link href="/login" >Log-in</Link> : <LogOutLink />}
+      {!user  ? <Link href="/login" >Log-in</Link> : <LogOutLink />}
       </div>
 
     )}

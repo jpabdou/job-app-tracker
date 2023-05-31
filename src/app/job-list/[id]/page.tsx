@@ -19,25 +19,15 @@ export default function EditJobForm( ) {
         method: "GET",
         headers: {Authentication: `Bearer ${token}`}
       };
-    const res = await fetch(`/api/jobs/read?id=${user_id}#${jobId}`, getReq);
-    // The return value is *not* serialized
-    // You can return Date, Map, Set, etc.
-   
-    // Recommendation: handle errors
-    // if (!(res.status === 200)) {
-    //     router.push("/job-entry");
-    //   // This will activate the closest `error.js` Error Boundary
-    //   throw new Error('Failed to fetch data');
-      
-    // }
+    const res = await fetch(`/api/jobs/read?id=${user?.id}&jobid=${jobId}`, getReq);
+
    const job = await res.json()
-    return job.data[0];}
+    return job.data;}
 
     const jobId = useParams().id;
     // const {editJob} = await getJob(user?.id!, jobId);
     useEffect(()=>{
      getJob(user?.id!, jobId).then(data=>{
-      console.log(data)
       setEditJob(data)})
     },[])
 

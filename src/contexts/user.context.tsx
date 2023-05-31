@@ -1,7 +1,7 @@
 "use client"
 import React, { FC, createContext,useContext , useState } from "react";
 import Realm, { App, Credentials } from "realm-web";
-
+import test_data from "../../test-data/test-data.json"
  
 // Creating a Realm App Instance
 const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
@@ -25,7 +25,10 @@ interface Values{
   sendResetPasswordEmail: (email: string) => Promise<void>,
   validateEmail: (email: string) => boolean,
   emailPasswordReset: (email: string, password: string, token: string, tokenId: string) => Promise<Realm.User>,
-  validatePassword: (password: string) => boolean 
+  validatePassword: (password: string) => boolean,
+  loginAnonymous: ()=> Promise<Realm.User>,
+  trialLogIn: () => void,
+  trialLogOut: () => void,
  }
 
 const defaultUser = {} as Values;
@@ -46,6 +49,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
    const credentials = Credentials.emailPassword(email, password);
    const authenticatedUser = await app.logIn(credentials);
    setUser(authenticatedUser);
+   setTrial(false);
    return authenticatedUser;
  };
 
@@ -80,6 +84,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
    try {
      await app.currentUser.refreshCustomData();
      setUser(app.currentUser);
+     setTrial(false);
      return app.currentUser;
    } catch (error) {
      throw error;
@@ -92,6 +97,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
      await app.currentUser.logOut();
      setToken(null);
      setUser(undefined);
+     setTrial(false)
      return true;
    } catch (error) {
      throw error
@@ -132,6 +138,23 @@ const validatePassword = (password: string) =>
   }
     return (true)
 }
+
+async function loginAnonymous() {
+  const credentials = Credentials.anonymous();
+  const user = await app.logIn(credentials);
+  setUser(user)
+  setTrial(true)
+  console.assert(user.id === app.currentUser!.id);
+  return user;
+}
+
+const trialLogIn = () =>{
+  setTrial(true);
+}
+
+const trialLogOut = () =>{
+  setTrial(false);
+}
  
  return <UserContext.Provider value={
   { 
@@ -150,7 +173,10 @@ const validatePassword = (password: string) =>
     confirmUser,
     sendResetPasswordEmail, 
     validateEmail,
-    validatePassword
+    validatePassword,
+    loginAnonymous,
+    trialLogIn,
+    trialLogOut
     }}>
    {children}
  </UserContext.Provider>;

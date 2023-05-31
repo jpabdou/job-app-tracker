@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
       };
           let createResult = await db_connect.collection("jobsData").insertOne({...myobj});
-          return NextResponse.json(createResult);
+          return NextResponse.json({data: createResult});
         } catch (e) {
             console.error(e)
           }    

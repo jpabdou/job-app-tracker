@@ -10,7 +10,7 @@ import NavBar from './components/NavBar';
 
 
 export default function Page() {
- const { user, getValidAccessToken, fetchUser } = useContext(UserContext);
+ const { user, getValidAccessToken } = useContext(UserContext);
  
 // Once a user logs in to our app, we don’t want to ask them for their
 // credentials again every time the user refreshes or revisits our app, 
@@ -68,7 +68,7 @@ useEffect(() => {
           <Link href="/login" className="text-2xl underline">Log-in</Link>
       </div>
      }
-     {user && 
+     {user !==undefined  && 
      <div className='flex justify-evenly flex-row text-2xl underline'>
       <LogOutLink />
       </div>}

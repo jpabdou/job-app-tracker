@@ -5,14 +5,14 @@ import { UserContext } from '@/contexts/user.context';
 import { Dialog, DialogActions, DialogContent, DialogTitle,DialogContentText, Button } from '@mui/material';
 
 export default function Page(){
-    const {user, sendResetPasswordEmail} = useContext(UserContext)
+    const {user, sendResetPasswordEmail, trial} = useContext(UserContext)
     const router = useRouter();
 
     const [opened, setOpened] = useState(false)
     const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
 
     useEffect(()=>{
-        if (!(user)) {
+        if (!user) {
             router.push("/login")
             alert("Not Logged In")
             
@@ -36,8 +36,8 @@ export default function Page(){
 
     return(
         <div className='text-center'>
-           <h1 className="text-2xl text-center">Email: {user?.profile.email || "Not Logged In"}</h1>
-           <button onClick={handleOpen} className={buttonSetting}>Click Here to Reset Password</button>
+           <h1 className="text-2xl text-center">Email: {user?.profile.email || `Not Logged In${trial && ", but on trial account"}`}</h1>
+           {trial ? null : <button onClick={handleOpen} className={buttonSetting}>Click Here to Reset Password</button>}
            <Dialog
                 open={opened}
                 onClose={handleClose}
