@@ -1,7 +1,6 @@
 "use client"
 import React, { FC, createContext,useContext , useState } from "react";
 import Realm, { App, Credentials } from "realm-web";
-import test_data from "../../test-data/test-data.json"
  
 // Creating a Realm App Instance
 const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
