@@ -63,9 +63,10 @@ export async function DELETE(request: NextRequest) {
     try {
       const client = await clientPromise;
       let db_connect = client.db("jobsData");
-      const { hash, searchParams } = new URL(request.url!);
+      const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
-      let query = { _id: new ObjectId(hash), user_id: user_id };
+      let jobId: string  = searchParams.get("jobid") || "";
+      let query = { _id: new ObjectId(jobId), user_id: user_id };
       let deleteResult = await db_connect.collection("jobsData").deleteOne(query);
         console.log("1 document deleted");
         return NextResponse.json({data: deleteResult});

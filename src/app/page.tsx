@@ -1,17 +1,15 @@
 "use client"
 
 import { Button } from '@mui/material'
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { UserContext } from '../contexts/user.context';
 import LogOutLink from '@/app/components/LogOutLink';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import NavBar from './components/NavBar';
 
 
 export default function Page() {
  const { user, getValidAccessToken } = useContext(UserContext);
- 
 // Once a user logs in to our app, we don’t want to ask them for their
 // credentials again every time the user refreshes or revisits our app, 
 // so we are checking if the user is already logged in and
@@ -38,7 +36,6 @@ useEffect(() => {
 
  return (
   <div>
-    {/* <NavBar /> */}
   <div className='w-full my-5 text-center'>
    <div className='flex flex-col justify-around w-1/2 mx-auto'>
       <div className='my-2'>

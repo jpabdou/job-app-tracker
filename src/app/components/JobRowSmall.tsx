@@ -13,7 +13,7 @@ interface props {
     idx: number;
   }
 
-export default function JobRow(props: props) {
+export default function JobRowSmall(props: props) {
 
 
     const { user,token, setAlertMessage } = useContext(UserContext);
@@ -95,52 +95,7 @@ export default function JobRow(props: props) {
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
             <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} - {jobEntry.company}</Link></TableCell>
-            <TableCell align="center">{jobs[idx].dateApplied}</TableCell>
-            <TableCell align="center">
-                <FormControl>
-                    <InputLabel id="applicationRoute">Application Method/Source</InputLabel>
-
-                    <Select
-                        name="applicationRoute"
-                        value={jobEntry.applicationRoute}
-                        label="Application Method/Source"
-                        labelId="applicationRoute"
-                        onChange={handleAppRouteInput}
-                    >
-                        {applicationRouteArr.map(choice=>{
-                            return(<MenuItem value={choice} key={choice}>{choice}</MenuItem>)
-                            })}
-                    </Select>
-                </FormControl>   
-            </TableCell>
-            <TableCell align="center"> 
-                <FormControl>
-                    <InputLabel id="emailFollowup">Follow-up email sent?</InputLabel>
-                    <Select
-                    name="emailFollowup"
-                    value={jobEntry.emailFollowup}
-                    label="Follow-up email sent?"
-                    onChange={handleSelectInput}
-                    labelId="emailFollowup"
-                    style={{ textAlign: 'center', width: "10rem"}}
-
-                    >
-                        <MenuItem value="no" key="no">No</MenuItem>
-                        <MenuItem value="yes" key="yes">Yes</MenuItem>
-                    </Select>
-                </FormControl>  
-            </TableCell>            
-            <TableCell align="center">
-                <FormControl>
-                        <TextField     
-                        label="Name of outreach contact"
-                        name="outreachContact"
-                        value={jobEntry.outreachContact}
-                        onChange={handleTextInput}
-                        style={{  textAlign: 'center', width: "12rem"}}
-                    />
-                </FormControl>
-            </TableCell>
+            <TableCell align="center">{jobs[idx].dateApplied}</TableCell>         
             <TableCell align="center">
                 <FormControl>
                     <InputLabel id="appStatus">Application Status</InputLabel>
@@ -151,7 +106,7 @@ export default function JobRow(props: props) {
                         label="Application Status"
                         labelId="appStatus"
                         onChange={handleSelectInput}
-                        style={{  textAlign: 'center', width: "30rem"}}
+                        style={{  textAlign: 'center', width: "15rem"}}
 
                     >
                             {appStatusArr.map(choice=>{
@@ -174,5 +129,6 @@ export default function JobRow(props: props) {
             </TableCell>
             </TableRow>
             </TableBody>
+        
             );
 };

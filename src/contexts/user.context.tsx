@@ -7,6 +7,11 @@ const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
  
 // Creating a user context to manage and access all the user related functions
 // across different components and pages.
+interface alertType {
+  message: string,
+  severity: string
+}
+
 
 interface Values{
   user: Realm.User|  undefined,
@@ -15,6 +20,8 @@ interface Values{
   setToken: (token: string | null) => void,
   trial: boolean,
   setTrial: (trial: boolean) => void,
+  alertMessage: alertType,
+  setAlertMessage: (alertMessage: alertType) => void,
   fetchUser: () => Promise<boolean | Realm.User>,
   logOutUser: ()=>Promise<boolean>,
   emailPasswordLogin: (email: string, password: string)=> Promise<Realm.User>,
@@ -43,12 +50,14 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
  const [token, setToken] = useState<string | null>(null);
  const [trial, setTrial] = useState<boolean>(false);
+ const [alertMessage, setAlertMessage] = useState({message: "", severity: ""})
 
  const emailPasswordLogin = async (email: string, password: string) => {
    const credentials = Credentials.emailPassword(email, password);
    const authenticatedUser = await app.logIn(credentials);
    setUser(authenticatedUser);
    setTrial(false);
+   setAlertMessage({message: "Logged In.", severity: "success"});
    return authenticatedUser;
  };
 
@@ -64,6 +73,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const emailPasswordSignup = async (email: string, password: string) => {
    try {
      await app.emailPasswordAuth.registerUser({email, password});
+     setAlertMessage({message: "Successfully signed up. Check your email for a confirmation link.", severity: "success"});
      return true;
    } catch (error) {
      throw error;
@@ -84,6 +94,11 @@ export const UserProvider: FC<Props>= ({ children }) => {
      await app.currentUser.refreshCustomData();
      setUser(app.currentUser);
      setTrial(false);
+     if (app.currentUser.isLoggedIn){
+      setAlertMessage({message: "Logged In.", severity: "success"});
+
+     }
+
      return app.currentUser;
    } catch (error) {
      throw error;
@@ -96,7 +111,8 @@ export const UserProvider: FC<Props>= ({ children }) => {
      await app.currentUser.logOut();
      setToken(null);
      setUser(undefined);
-     setTrial(false)
+     setTrial(false);
+     setAlertMessage({message: "Logged Out.", severity: "success"});
      return true;
    } catch (error) {
      throw error
@@ -106,19 +122,19 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const confirmUser = async (tokenInput: string, tokenIdInput: string) => {
   try {
     await app.emailPasswordAuth.confirmUser({ token: tokenInput, tokenId: tokenIdInput });
-    alert("Successfully confirmed user.");
+    setAlertMessage({message: "Successfully confirmed user.", severity: "success"});
     return true;
   } catch (err) {
-    alert(`User confirmation failed: ${err}`);
+    setAlertMessage({message:`User confirmation failed: ${err}`, severity: "error"});
 }
  }
 
  const sendResetPasswordEmail= async (email: string) =>{
   try {
     await app.emailPasswordAuth.sendResetPasswordEmail({ email });
-    alert("Password reset email sent. Check your inbox.")
+    setAlertMessage({message: "Password reset email sent. Check your inbox.", severity: "success"})
  }catch (err) {
-  alert(`Password reset email failed: ${err}. Try again.`);
+  setAlertMessage({message: `Password reset email failed: ${err}. Try again.`, severity: "error"});
 }}
 
 const validateEmail = (email: string) =>
@@ -143,6 +159,7 @@ async function loginAnonymous() {
   const user = await app.logIn(credentials);
   setUser(user)
   setTrial(true)
+  setAlertMessage({message: "Logged In on Trial Account.", severity: "success"});
   console.assert(user.id === app.currentUser!.id);
   return user;
 }
@@ -162,7 +179,9 @@ const trialLogOut = () =>{
     token, 
     setToken,
     trial,
-    setTrial, 
+    setTrial,
+    alertMessage,
+    setAlertMessage, 
     fetchUser, 
     emailPasswordLogin, 
     emailPasswordSignup, 

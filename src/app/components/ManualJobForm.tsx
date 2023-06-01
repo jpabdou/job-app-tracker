@@ -4,6 +4,8 @@ import axios from "axios";
 import { UserContext } from "../../contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
+import DeleteButton from "./DeleteButton";
+
 interface props {
     editJob: Job | undefined,
     jobId: string | undefined
@@ -12,7 +14,7 @@ interface props {
 export default function ManualJobForm(props: props) {
 
 
-    const { user,token } = useContext(UserContext);
+    const { user,token, setAlertMessage } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
@@ -154,14 +156,16 @@ export default function ManualJobForm(props: props) {
         },[manualJob]);
 
     useEffect(()=>{
-        if (user?.isLoggedIn === false ) {
+        if (!(user?.isLoggedIn) ) {
+            setAlertMessage({message:"Not Logged In", severity: "error"})
             router.push("/login")
-            alert("Not Logged In")
+
         }
     },[])
 
     return (
         <div className="w-full m-5 text-center">
+
             <h2 className={h2Setting}>{jobId ? "View or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{
@@ -227,6 +231,7 @@ export default function ManualJobForm(props: props) {
                 
                 <button className={manualDisabled ? disabledButtonSetting : buttonSetting}>{manualDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : "Submit Job Entry" }</button>                
             </form>
+            {jobId && <DeleteButton buttonSetting={buttonSetting} jobId={jobId} />}
             </div>
             );
 };

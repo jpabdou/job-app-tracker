@@ -5,7 +5,7 @@ import { UserContext } from '@/contexts/user.context';
 import { Dialog, DialogActions, DialogContent, DialogTitle,DialogContentText, Button } from '@mui/material';
 
 export default function Page(){
-    const {user, sendResetPasswordEmail, trial} = useContext(UserContext)
+    const {user, sendResetPasswordEmail, trial, setAlertMessage} = useContext(UserContext)
     const router = useRouter();
 
     const [opened, setOpened] = useState(false)
@@ -13,8 +13,9 @@ export default function Page(){
 
     useEffect(()=>{
         if (!user) {
-            router.push("/login")
-            alert("Not Logged In")
+          setAlertMessage({message: "Not Logged In", severity: "error"});
+            router.push("/login");
+
             
         }
     },[])

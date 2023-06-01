@@ -3,12 +3,13 @@ import React, {useContext, useEffect,useState} from "react";
 import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
-import Link from "next/link";
 import JobRow from "./JobRow";
+import JobRowSmall from "./JobRowSmall";
+
 import { Table, TableRow, TableHead, TableCell, TableBody, Box } from "@mui/material";
 
 export default function JobList() {
-    const { user, token } = useContext(UserContext);
+    const { user, token, setAlertMessage } = useContext(UserContext);
     const router = useRouter();
 
 
@@ -26,6 +27,7 @@ export default function JobList() {
             let url : string = `/api/jobs/read?id=${user_id}`
             const res = await fetch(`${url}`, getReq);
             if (!(res.status === 200)) {
+              setAlertMessage({message: "Failed to fetch data.", severity: "error"})
                 router.push("/");
               throw new Error('Failed to fetch data');
               
@@ -34,7 +36,7 @@ export default function JobList() {
             setJobs(result.data);
             if (result.data.length === 0) {
                 router.push("/job-entry")
-                alert("No jobs found. Enter a job first.")
+                setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"})
             }
         } catch (e) {
             console.error(e)
@@ -42,13 +44,13 @@ export default function JobList() {
 
       }
 
+
     useEffect(()=>{
       if (id) {
             getJobs(id)
         } else {
             router.push("/")
-            alert("Not Logged In")
-            
+            setAlertMessage({message:"Not Logged In.", severity: "error"})            
         }
     },[])
 
@@ -66,7 +68,7 @@ export default function JobList() {
         <Table style={{ width: '100%' }} aria-label="simple table">
                     <TableHead>
                         <TableRow key={'header row'}>                        
-                            <TableCell className="text-xl font-bold">Job Title - Company</TableCell>
+                            <TableCell scope="row" className="text-xl font-bold">Job Title - Company</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Date Applied</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Application Route</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Followed up by Email?</TableCell>
@@ -102,7 +104,7 @@ export default function JobList() {
         <Table style={{ width: '100%' }} aria-label="simple table">
                     <TableHead>
                         <TableRow key={'header row'}>                        
-                            <TableCell className="text-xl font-bold">Job Title - Company</TableCell>
+                            <TableCell scope="row" className="text-xl font-bold">Job Title - Company</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Date Applied</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Application Status</TableCell>
                             <TableCell align="center" className="text-xl font-bold">Update Job?</TableCell>
@@ -110,7 +112,7 @@ export default function JobList() {
                     </TableHead>
             {jobs.length>0 ? jobs.map((job,idx)=>{
                 return(
-                    <JobRow key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
+                    <JobRowSmall key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
                 )
             }) : 
             <TableBody>
