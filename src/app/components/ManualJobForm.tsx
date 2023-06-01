@@ -231,7 +231,10 @@ export default function ManualJobForm(props: props) {
                 
                 <button className={manualDisabled ? disabledButtonSetting : buttonSetting}>{manualDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : "Submit Job Entry" }</button>                
             </form>
+            <div className="my-2">
             {jobId && <DeleteButton buttonSetting={buttonSetting} jobId={jobId} />}
+            </div>
+
             </div>
             );
 };
