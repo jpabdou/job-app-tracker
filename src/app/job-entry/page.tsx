@@ -202,7 +202,6 @@ export default function JobEntry() {
 
     return (
         <div className="w-full m-5 text-center">
-          {/* <NavBar /> */}
             {/* <form onSubmit={onSubmiturlList}>
                 <label>
                     Enter urls to LinkedIn jobs that you want to parse separated by line:

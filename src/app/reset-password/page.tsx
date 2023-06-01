@@ -15,7 +15,6 @@ export default function Page(){
 
     return(
         <div>
-            {/* <NavBar /> */}
             <LogInForm reset={true} token={tokenInput!} tokenId={tokenIdInput!}/>
         </div>
 

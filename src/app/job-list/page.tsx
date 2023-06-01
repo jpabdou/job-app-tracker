@@ -13,7 +13,6 @@ export default function JobListings() {
     }
     return(
         <div>
-            {/* <NavBar /> */}
             <JobList  />
         </div>
     )
