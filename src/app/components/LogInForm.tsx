@@ -60,7 +60,7 @@ const LogInForm = (props: props) => {
 
  useEffect(()=>{
     setDisabled(validateEmail(form.email) || validatePassword(form.password))
-    setResetDisabled(validatePassword(form.password))
+    setResetDisabled(validatePassword(form.email))
     setForm({...form, errors: {email: validateEmail(form.email) ? "Enter valid email" : "", 
     password: validatePassword(form.password) ? 'Enter valid password of 7 to 20 characters length with at least 1 captial letter, 1 lowercase letter, and 1 number' : ""}})
  },[form.password, form.email])

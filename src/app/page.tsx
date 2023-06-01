@@ -33,6 +33,14 @@ useEffect(() => {
   loadToken(); // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
+const [hasMounted, setHasMounted] = useState(false);
+useEffect(() => {
+  setHasMounted(true);
+}, []);
+if (!hasMounted) {
+  return null;
+}
+
 
  return (
   <div>
@@ -51,8 +59,14 @@ useEffect(() => {
         <li>• Clicking the &ldquo;Sign-up&rdquo; link in the navigation bar above or in the links below to sign up with an email and password. You will need to confirm your credentials by email and then log-in.</li>
         <li>• Clicking the &ldquo;Log-in&rdquo; link in the navigation bar above or below and click &ldquo;Sign in with Trial&rdquo; to see how app works.</li>
       </ul>
-      <br></br>
       After you have logged in, you can navigate to the &ldquo;Job Entry&rdquo; link above to enter your applications and details about your process for each application. After you enter your applications, you can navigate to the &ldquo;Job List&rdquo; page where you can view your applications and update each one as they progress or click on the job title link to view and update the job details.
+      </h2>
+      
+      </div>
+      <div className='my-2'>
+      <h1 className='text-3xl'>How was this app made?</h1>
+      --
+      <h2 className='text-2xl'>Job App Tracker was developed in TypeScript with Next.js for the frontend and backend and with MongoDB as the NoSQL database. You can view the GitHub repository <a href="https://github.com/jpabdou/job-app-tracker" className='underline'>here</a>.
       </h2>
       
       </div>

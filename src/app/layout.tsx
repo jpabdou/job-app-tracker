@@ -3,7 +3,7 @@ import NavBar from './components/NavBar';
 import React, { ReactNode } from 'react'
 import { UserProvider } from '@/contexts/user.context';
 import ScreenAlert from "./components/ScreenAlert";
-
+import FooterNavBar from './components/FooterNav';
 export const metadata = {
   title: 'Job Application Tracker',
   description: 'Created with MongoDB, Next, and Node',
@@ -20,6 +20,7 @@ export default function RootLayout({ children}: Props) {
           <NavBar />
           <ScreenAlert />
         {children}
+          <FooterNavBar />
         </UserProvider>
       </body>
     </html>
