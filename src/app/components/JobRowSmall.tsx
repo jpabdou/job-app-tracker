@@ -5,6 +5,7 @@ import { UserContext } from "../../contexts/user.context";
 import { useRouter } from "next/navigation";
 import { JobEntry, Job } from "../../../types/Jobs";
 import Link from "next/link";
+import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
@@ -20,7 +21,7 @@ export default function JobRowSmall(props: props) {
     const router = useRouter();
 
     let {jobs, setJobs, jobId, idx} = props;
-    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
+    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", dateApplied: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
     initialJobEntryInput = jobs[idx];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
@@ -48,7 +49,7 @@ export default function JobRowSmall(props: props) {
       };
 
        
-    const handleTextInput= (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInput= (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         let val: (string | number) = event.target.value;
         let name: string = event.target.name;
             setVisible(true);
@@ -98,21 +99,8 @@ export default function JobRowSmall(props: props) {
             <TableCell align="center">{jobs[idx].dateApplied}</TableCell>         
             <TableCell align="center">
                 <FormControl>
-                    <InputLabel id="appStatus">Application Status</InputLabel>
+                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={jobEntry.appStatus} />
 
-                    <Select
-                        name="appStatus"
-                        value={jobEntry.appStatus}
-                        label="Application Status"
-                        labelId="appStatus"
-                        onChange={handleSelectInput}
-                        style={{  textAlign: 'center', width: "15rem"}}
-
-                    >
-                            {appStatusArr.map(choice=>{
-                                return(<MenuItem key={choice} value={choice}>{choice}</MenuItem>)
-                            })}
-                    </Select>
                 </FormControl>
             </TableCell>
             <TableCell align="center">

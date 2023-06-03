@@ -5,6 +5,7 @@ import { UserContext } from "../../contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
 import DeleteButton from "./DeleteButton";
+import JobStatusSelect from "./JobStatusSelect";
 
 interface props {
     editJob: Job | undefined,
@@ -128,22 +129,28 @@ export default function ManualJobForm(props: props) {
     const handleAppRouteInput = (event: React.ChangeEvent<HTMLSelectElement>) =>{
         let val: string = event.target.value;
         let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
+        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen"];
 
         setManualJob({...manualJob, 
             appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
-            emailFollowup: val=== appStatusArr[2] ? "yes" : "no", [name]: val});
+            emailFollowup: val=== "Referral" ? "yes" : "no", 
+            [name]: val});
 
     };
 
     const requiredArr:  Array<string> = ["company", "title", "jobLink", "location"];
     const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["jobLink","Job Link"],["dateApplied","Application Date"]];
     const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor", "Other"];
-    const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
 
+    useEffect(()=>{
+        if (!(user?.isLoggedIn) ) {
+            setAlertMessage({message:"Not Logged In", severity: "error"})
+            router.push("/login")
+        }
+    },[])
     const jobTest = (requiredElements: Array<string>, job: Job) =>{
         
-        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>].trim().length === 0});
+        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>]?.trim().length === 0});
 
     };
 
@@ -151,22 +158,23 @@ export default function ManualJobForm(props: props) {
         setManualDisabled(jobTest(requiredArr, manualJob));
     }
 
-    useEffect(() =>{
-        manualErrorSetting();
-        },[manualJob]);
-
     useEffect(()=>{
         if (!(user?.isLoggedIn) ) {
             setAlertMessage({message:"Not Logged In", severity: "error"})
             router.push("/login")
-
         }
     },[])
 
+    useEffect(() =>{
+        manualErrorSetting();
+        },[manualJob]);
+
+
+
     return (
         <div className="w-full m-5 text-center">
-
-            <h2 className={h2Setting}>{jobId ? "View or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
+            {jobId ? <a className={h2Setting + " underline"} href={manualJob.jobLink}>Click here to view original job posting or</a> : null}
+            <h2 className={h2Setting}>{jobId ? "view or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{
                     return( 
@@ -217,15 +225,7 @@ export default function ManualJobForm(props: props) {
                     </div>
 
                 <br></br>
-                <div className={divInputSetting}>
-                <label htmlFor="appStatus">
-                    Enter the Application Status:</label>
-                    <select name="appStatus" value={manualJob.appStatus} onChange={handleChangeInput}>
-                    {appStatusArr.map(choice=>{
-                        return(<option key={choice} value={choice}>{choice}</option>)
-                    })}
-                    </select>
-                </div>
+                <JobStatusSelect handleFunc={handleChangeInput} selectVal={manualJob.appStatus} inputSetting={divInputSetting} />
 
 
                 

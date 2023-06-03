@@ -5,6 +5,7 @@ import { UserContext } from "../../contexts/user.context";
 import { useRouter } from "next/navigation";
 import { JobEntry, Job } from "../../../types/Jobs";
 import Link from "next/link";
+import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
@@ -20,7 +21,7 @@ export default function JobRow(props: props) {
     const router = useRouter();
 
     let {jobs, setJobs, jobId, idx} = props;
-    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
+    let initialJobEntryInput :  JobEntry ={company: "", title: "", dateApplied: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
     initialJobEntryInput = jobs[idx];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
@@ -62,23 +63,9 @@ export default function JobRow(props: props) {
             setJobEntry({...jobEntry, [name]: val});
         }
     
-    const handleAppRouteInput = (event: SelectChangeEvent) =>{
-        let val: string = event.target.value;
-        let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
-        setVisible(true);
-        setJobEntry({...jobEntry, 
-            appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
-            emailFollowup: val=== appStatusArr[2] ? "yes" : "no", [name]: val});
 
-    };
 
     const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor", "Other"];
-    const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
-
-
-
-
 
     useEffect(()=>{
         if (!user) {
@@ -94,8 +81,8 @@ export default function JobRow(props: props) {
             key={`job ${idx+1}`}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} - {jobEntry.company}</Link></TableCell>
-            <TableCell align="center">{jobs[idx].dateApplied}</TableCell>
+            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} &#8211; {jobEntry.company}</Link></TableCell>
+            <TableCell align="center" sx={{fontSize: 18}}>{jobs[idx].dateApplied}</TableCell>
             <TableCell align="center">
                 <FormControl>
                     <InputLabel id="applicationRoute">Application Method/Source</InputLabel>
@@ -105,7 +92,9 @@ export default function JobRow(props: props) {
                         value={jobEntry.applicationRoute}
                         label="Application Method/Source"
                         labelId="applicationRoute"
-                        onChange={handleAppRouteInput}
+                        onChange={handleSelectInput}
+                        style={{ textAlign: 'center', width: "14rem"}}
+                        variant='filled'
                     >
                         {applicationRouteArr.map(choice=>{
                             return(<MenuItem value={choice} key={choice}>{choice}</MenuItem>)
@@ -123,7 +112,7 @@ export default function JobRow(props: props) {
                     onChange={handleSelectInput}
                     labelId="emailFollowup"
                     style={{ textAlign: 'center', width: "10rem"}}
-
+                    variant='filled'
                     >
                         <MenuItem value="no" key="no">No</MenuItem>
                         <MenuItem value="yes" key="yes">Yes</MenuItem>
@@ -138,27 +127,12 @@ export default function JobRow(props: props) {
                         value={jobEntry.outreachContact}
                         onChange={handleTextInput}
                         style={{  textAlign: 'center', width: "12rem"}}
+                        variant='filled'
                     />
                 </FormControl>
             </TableCell>
             <TableCell align="center">
-                <FormControl>
-                    <InputLabel id="appStatus">Application Status</InputLabel>
-
-                    <Select
-                        name="appStatus"
-                        value={jobEntry.appStatus}
-                        label="Application Status"
-                        labelId="appStatus"
-                        onChange={handleSelectInput}
-                        style={{  textAlign: 'center', width: "30rem"}}
-
-                    >
-                            {appStatusArr.map(choice=>{
-                                return(<MenuItem key={choice} value={choice}>{choice}</MenuItem>)
-                            })}
-                    </Select>
-                </FormControl>
+                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={jobEntry.appStatus} />
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{

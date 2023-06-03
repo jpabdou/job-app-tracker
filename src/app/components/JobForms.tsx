@@ -3,7 +3,7 @@
 import React, {useState, useEffect } from "react";
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-
+import JobStatusSelect from "./JobStatusSelect";
 
 interface props {
     jobList: Job[];
@@ -199,15 +199,7 @@ export default function JobForms(props: props) {
                     <textarea name="jobDescription" value={job.jobDescription} placeholder='Enter Job Description Here' onChange={(event: React.ChangeEvent<HTMLTextAreaElement>)=>handleJobUpdateInput(event,idx)} />
                 </div>
                 
-                <div className={divInputSetting}>
-                <label htmlFor="appStatus">
-                    Enter the Application Status:</label>
-                    <select name="appStatus" value={job.appStatus} onChange={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateInput(event,idx)}>
-                    {appStatusArr.map(choice=>{
-                        return(<option key={choice} value={choice}>{choice}</option>)
-                    })}
-                    </select>
-                </div>
+                    <JobStatusSelect handleFunc={(event: React.ChangeEvent<HTMLSelectElement>)=>handleJobUpdateInput(event,idx)} selectVal={job.appStatus} inputSetting={divInputSetting} />
                     </div>
                 )
             })}

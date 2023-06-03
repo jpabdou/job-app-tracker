@@ -27,6 +27,7 @@ export default function DeleteButton(props: props) {
             let url : string =  `/api/jobs/delete?id=${user?.id}&jobid=${jobId}`
           const response = await fetch(`${url}`, deleteReq);
           let job = await response.json();
+          router.push("/job-list")
           return job;
         } catch (error) {
                       console.error('unexpected error: ', error);

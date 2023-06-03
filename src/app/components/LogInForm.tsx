@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Link from 'next/link'
 import { UserContext, UserProvider } from "../../contexts/user.context";
 import { useRouter } from 'next/navigation';
+import SignUpButton from "./SignUpButton";
 
 interface props {
   reset: boolean,
@@ -18,7 +19,7 @@ const LogInForm = (props: props) => {
     const router = useRouter();
     const {reset, token, tokenId} = props;
     const buttonSetting = "w-52 my-2 text-center rounded-md border-2 p-3 border-black place-content-center bg-lime-700 text-white hover:bg-lime-200 hover:text-black ";
-    const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
+    const disabledButtonSetting = "my-2 w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
  const { user, fetchUser, loginAnonymous, emailPasswordLogin, sendResetPasswordEmail, validateEmail, validatePassword, emailPasswordReset } = useContext(UserContext);
  
@@ -29,7 +30,7 @@ const LogInForm = (props: props) => {
    errors: {email: "", password: ""}
  });
  const [disabled, setDisabled] = useState(true)
- const [resetDisabled, setResetDisabled] = useState(true)
+ const [resetDisabled, setResetDisabled] = useState(false)
  const [displayError, setDisplayError] = useState(false)
 
 
@@ -60,7 +61,7 @@ const LogInForm = (props: props) => {
 
  useEffect(()=>{
     setDisabled(validateEmail(form.email) || validatePassword(form.password))
-    setResetDisabled(validatePassword(form.email))
+    setResetDisabled(validateEmail(form.email))
     setForm({...form, errors: {email: validateEmail(form.email) ? "Enter valid email" : "", 
     password: validatePassword(form.password) ? 'Enter valid password of 7 to 20 characters length with at least 1 captial letter, 1 lowercase letter, and 1 number' : ""}})
  },[form.password, form.email])
@@ -122,13 +123,16 @@ const LogInForm = (props: props) => {
    <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
      Log-in
    </button>}
-   <button className={buttonSetting} disabled={reset ? disabled : resetDisabled} onClick={()=>{setForm({...form, action: "reset"}) 
+   <button className={reset ? (disabled ? disabledButtonSetting: buttonSetting) : (resetDisabled ? disabledButtonSetting: buttonSetting)} disabled={reset ? disabled : resetDisabled} onClick={()=>{setForm({...form, action: "reset"}) 
       setDisplayError(disabled ? true : false)}}>
      {reset ? "Reset Password" : "Send Password Reset Email"}
    </button>
-   <p>Don&apos;t have an account? <Link className="underline font-semibold" href="/signup">Sign-up</Link></p>
+  
  </form>
- <div className="w-full flex align-center justify-center">
+ <div className="w-full flex flex-col justify-center items-center">
+ <p>Don&apos;t have an account?</p>
+ <SignUpButton />
+ <p>Or</p>
  <button className={buttonSetting} onClick={async ()=>{
       loginAnonymous();
       redirectNow();
