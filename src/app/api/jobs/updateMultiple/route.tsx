@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 
 import clientPromise from "../../../../../lib/mongodb";
 
+// not used in app, only for fixing mistakes due to "createMany" request
 export async function PUT(request: NextRequest) {
     if (request.method === 'PUT') {
 
@@ -11,10 +12,10 @@ export async function PUT(request: NextRequest) {
       let db_connect = client.db("jobsData");
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
-      let myquery = { "user_id": user_id,'location':null};
+      let myquery = { "user_id": user_id,"jobDescription": {$exists: false}};
       let newvalues = {
         $set: {
-         "location": "Remote"
+         "jobDescription": "No Description Added"
         },
       };
       let updateResult = await db_connect

@@ -17,15 +17,24 @@ export async function GET(request: NextRequest) {
         let jobResult = await db_connect
           .collection("jobsData")
           .findOne(myquery);
-       return NextResponse.json({data: {...jobResult, _id: jobId}});
+       return NextResponse.json({data: {...jobResult, id: jobId}});
           
       } else {
           let myquery = { "user_id": user_id}
-          let result = await db_connect
+          let idx = 0
+          let cursor = db_connect
             .collection("jobsData")
             .find(myquery)
-            .toArray();
-        return NextResponse.json({data:result});
+            .map((job)=>{
+              job.id= job._id.toString();
+              job.jobNumber = idx;
+              idx++
+              return job
+            })
+
+            const result = await cursor.toArray();
+
+            return NextResponse.json({data:result});
 
       }
     } catch (e) {

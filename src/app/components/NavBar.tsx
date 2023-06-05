@@ -14,7 +14,7 @@ export default function NavBar(){
     }
  
     return(
-        <div className='m-5 text-center h-fit flex flex-col'>
+        <div className='self-center text-center h-fit flex flex-col'>
             <h1 className="text-3xl font-bold my-5">Welcome to the Job Application Tracker!</h1>
             <div>
                 <nav className='flex flex-row flex-nowrap justify-evenly align-middle text-2xl underline my-2'>

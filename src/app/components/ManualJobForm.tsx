@@ -15,12 +15,12 @@ interface props {
 export default function ManualJobForm(props: props) {
 
 
-    const { user,token, setAlertMessage } = useContext(UserContext);
+    const { user,token, setAlertMessage, setJobs, jobs } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
     let {editJob, jobId} = props;
-    let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
+    let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobNumber: jobs.length, jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
     if (jobId)  {
         initialManualJobInput = editJob!;
     };
@@ -29,8 +29,8 @@ export default function ManualJobForm(props: props) {
     const h3Setting = "text-1xl text-center";
     const divInputSetting = "flex flex-row justify-center my-2 w-auto h-auto";
     const formSetting = "h-1/2 flex flex-col flex-wrap justify-evenly content-left";
-    const buttonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
-    const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
+    const buttonSetting = "self-center w-52 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
+    const disabledButtonSetting = "self-center w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
     const highlightRequiredSetting = "bg-yellow-400";
 
@@ -57,7 +57,6 @@ export default function ManualJobForm(props: props) {
           return job;
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                console.error('Axios error message: ', error.message);
                 return error.message;
               } else {
                 console.error('unexpected error: ', error);
@@ -79,11 +78,10 @@ export default function ManualJobForm(props: props) {
           };
         try {
           const response = await fetch(`/api/jobs/create?id=${user?.id}`, postReq);
-          let job = await response.json();
-          return job;
+          let result = await response.json();
+          return result;
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                console.error('Axios error message: ', error.message);
                 return error.message;
               } else {
                 console.error('unexpected error: ', error);
@@ -100,16 +98,23 @@ export default function ManualJobForm(props: props) {
         } else {
             if (jobId) {
                 updateJob(manualJob, jobId).then(res=>{
-                    router.push("/job-list")
+                    let targetIndex : number = manualJob.jobNumber;
+                    jobs.splice(targetIndex, 1, manualJob);
+                    setJobs([...jobs]);
+                    setManualJob(initialManualJobInput);
+                    router.push("/job-list");
 
                 })
 
             } else {
                 postJob(manualJob).then(res=>{
+                    jobs.push({...manualJob, _id: res.data.insertedId, id: res.data.insertedId.toString()});
+                    setJobs([...jobs]);
+                    setManualJob(initialManualJobInput);
                     router.push("/job-list");
                 })
                 .catch(err=>{
-                    console.log(err);
+                    console.error(err);
                 })
 
             }
@@ -150,7 +155,7 @@ export default function ManualJobForm(props: props) {
     },[])
     const jobTest = (requiredElements: Array<string>, job: Job) =>{
         
-        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>]?.trim().length === 0});
+        return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "id", "jobNumber","user_id"]>]?.trim().length === 0});
 
     };
 
@@ -172,14 +177,14 @@ export default function ManualJobForm(props: props) {
 
 
     return (
-        <div className="w-full m-5 text-center">
+        <div className="w-full text-center">
             {jobId ? <a className={h2Setting + " underline"} href={manualJob.jobLink}>Click here to view original job posting or</a> : null}
             <h2 className={h2Setting}>{jobId ? "view or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>
                 {inputArr.map(inputElement=>{
                     return( 
                         <div key={inputElement[0]} className={divInputSetting}>
-                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job as Exclude<keyof Job, ["_id", "user_id"]>].trim().length ===0 && highlightRequiredSetting}`}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && manualJob[inputElement[0] as keyof Job as Exclude<keyof Job, ["_id", "jobNumber", "id","user_id"]>].trim().length ===0 && highlightRequiredSetting}`}>
                         Enter {inputElement[1]}:</label>
                         <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={manualJob[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={handleChangeInput} />
                         

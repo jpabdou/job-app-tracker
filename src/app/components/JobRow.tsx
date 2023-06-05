@@ -9,24 +9,22 @@ import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
-    jobs: Job[];
-    setJobs: (jobs: Job[]) => void;
     idx: number;
   }
 
 export default function JobRow(props: props) {
 
 
-    const { user,token, setAlertMessage } = useContext(UserContext);
+    const { user,token, setAlertMessage,jobs, setJobs } = useContext(UserContext);
     const router = useRouter();
 
-    let {jobs, setJobs, jobId, idx} = props;
-    let initialJobEntryInput :  JobEntry ={company: "", title: "", dateApplied: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
+    let { jobId, idx} = props;
+    let initialJobEntryInput :  JobEntry ={company: "", title: "", jobNumber: jobs.length , dateApplied: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", id: "", _id:""};
     initialJobEntryInput = jobs[idx];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
-    const [jobEntry, setJobEntry] = useState(initialJobEntryInput);
+    const [job, setJob] = useState(initialJobEntryInput);
     const [visible, setVisible] = useState(false)
 
     const updateJob = async (job: JobEntry, jobId: string) => {
@@ -53,14 +51,14 @@ export default function JobRow(props: props) {
         let val: (string | number) = event.target.value;
         let name: string = event.target.name;
             setVisible(true);
-            setJobEntry({...jobEntry, [name]: val});
+            setJob({...job, [name]: val});
         }
 
     const handleSelectInput= (event: SelectChangeEvent) => {
         let val: (string | number) = event.target.value;
         let name: string = event.target.name;
         setVisible(true);
-            setJobEntry({...jobEntry, [name]: val});
+            setJob({...job, [name]: val});
         }
     
 
@@ -76,12 +74,12 @@ export default function JobRow(props: props) {
     },[])
 
     return (
-            <TableBody>
             <TableRow
-            key={`job ${idx+1}`}
+            key={`job ${idx}`}
+            tabIndex={-1}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} &#8211; {jobEntry.company}</Link></TableCell>
+            <TableCell scope="row"><Link prefetch={false}className="underline text-xl" href={`/job-list/${jobId}`}>{job.title} &#8211; {job.company}</Link></TableCell>
             <TableCell align="center" sx={{fontSize: 18}}>{jobs[idx].dateApplied}</TableCell>
             <TableCell align="center">
                 <FormControl>
@@ -89,7 +87,7 @@ export default function JobRow(props: props) {
 
                     <Select
                         name="applicationRoute"
-                        value={jobEntry.applicationRoute}
+                        value={job.applicationRoute}
                         label="Application Method/Source"
                         labelId="applicationRoute"
                         onChange={handleSelectInput}
@@ -107,7 +105,7 @@ export default function JobRow(props: props) {
                     <InputLabel id="emailFollowup">Follow-up email sent?</InputLabel>
                     <Select
                     name="emailFollowup"
-                    value={jobEntry.emailFollowup}
+                    value={job.emailFollowup}
                     label="Follow-up email sent?"
                     onChange={handleSelectInput}
                     labelId="emailFollowup"
@@ -124,7 +122,7 @@ export default function JobRow(props: props) {
                         <TextField     
                         label="Name of outreach contact"
                         name="outreachContact"
-                        value={jobEntry.outreachContact}
+                        value={job.outreachContact}
                         onChange={handleTextInput}
                         style={{  textAlign: 'center', width: "12rem"}}
                         variant='filled'
@@ -132,21 +130,21 @@ export default function JobRow(props: props) {
                 </FormControl>
             </TableCell>
             <TableCell align="center">
-                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={jobEntry.appStatus} />
+                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={job.appStatus} />
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{
                                 let target: Job = jobs[idx];
-                                const {applicationRoute, outreachContact, appStatus, emailFollowup} = jobEntry
+                                const {applicationRoute, outreachContact, appStatus, emailFollowup} = job
                                jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
                                setJobs([...jobs]);
-                               updateJob(jobEntry, jobId!).then(res=>{
+                               updateJob(job, jobId!).then(res=>{
                                 setVisible(false);               
                             }
 )
                 }}>Update Job</button> : null } 
             </TableCell>
             </TableRow>
-            </TableBody>
+            
             );
 };

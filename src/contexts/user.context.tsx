@@ -1,7 +1,8 @@
 "use client"
 import React, { FC, createContext,useContext , useState } from "react";
 import Realm, { App, Credentials } from "realm-web";
- 
+import { Job } from "../../types/Jobs";
+
 // Creating a Realm App Instance
 const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
  
@@ -20,6 +21,8 @@ interface Values{
   setToken: (token: string | null) => void,
   trial: boolean,
   setTrial: (trial: boolean) => void,
+  jobs: Job[],
+  setJobs: (jobs: Job[]) => void,
   alertMessage: alertType,
   setAlertMessage: (alertMessage: alertType) => void,
   fetchUser: () => Promise<boolean | Realm.User>,
@@ -50,6 +53,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
  const [token, setToken] = useState<string | null>(null);
  const [trial, setTrial] = useState<boolean>(false);
+ const [jobs, setJobs] = useState<Job[]>([]);
  const [alertMessage, setAlertMessage] = useState({message: "", severity: ""})
 
  const emailPasswordLogin = async (email: string, password: string) => {
@@ -112,6 +116,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
      setToken(null);
      setUser(undefined);
      setTrial(false);
+     setJobs([]);
      setAlertMessage({message: "Logged Out.", severity: "success"});
      return true;
    } catch (error) {
@@ -159,6 +164,7 @@ async function loginAnonymous() {
   const user = await app.logIn(credentials);
   setUser(user)
   setTrial(true)
+  setJobs([])
   setAlertMessage({message: "Logged In on Trial Account.", severity: "success"});
   console.assert(user.id === app.currentUser!.id);
   return user;
@@ -180,6 +186,8 @@ const trialLogOut = () =>{
     setToken,
     trial,
     setTrial,
+    jobs,
+    setJobs,
     alertMessage,
     setAlertMessage, 
     fetchUser, 

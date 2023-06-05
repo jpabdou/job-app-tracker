@@ -1,9 +1,8 @@
 'use client';
 import React, {useState, useEffect } from "react";
 import ManualJobForm from "@/app/components/ManualJobForm";
-import JobForms from "@/app/components/JobForms";
+// import JobForms from "@/app/components/JobForms";
 import { Job } from "../../../types/Jobs";
-import NavBar from "../components/NavBar";
 
 export default function JobEntry() {
     const h2Setting = "text-2xl text-left";
@@ -17,15 +16,15 @@ export default function JobEntry() {
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
     const disabledButtonSetting = "m-auto w-52 rounded-md border-2 p-3 border-black object-left bg-gray-700 text-white hover:bg-gray-200 hover:text-black";
 
-    const currentDate = new Date().toJSON().slice(0,10);
-    let initialurlList : string[] = [];
-    let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
-    let initialJobEntries : Job[] = [];
-    interface JobError {company: number[], title: number[], jobLink: number[], jobDescription: number[], location: number[]};
-    let initialJobErrors : JobError = {company: [], title: [], jobLink: [], jobDescription: [], location: []};
+    // const currentDate = new Date().toJSON().slice(0,10);
+    // let initialurlList : string[] = [];
+    // let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
+    // let initialJobEntries : Job[] = [];
+    // interface JobError {company: number[], title: number[], jobLink: number[], jobDescription: number[], location: number[]};
+    // let initialJobErrors : JobError = {company: [], title: [], jobLink: [], jobDescription: [], location: []};
 
     // const [urlList, seturlList] = useState(initialurlList);
-    const [jobList, setJobList] = useState(initialJobEntries);
+    // const [jobList, setJobList] = useState(initialJobEntries);
 
     
     // const handleChange= (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -201,7 +200,7 @@ export default function JobEntry() {
     //   const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
 
     return (
-        <div className="w-full m-5 text-center">
+        <div className="w-full text-center">
             {/* <form onSubmit={onSubmiturlList}>
                 <label>
                     Enter urls to LinkedIn jobs that you want to parse separated by line:
@@ -216,7 +215,7 @@ export default function JobEntry() {
 
             <ManualJobForm editJob={undefined} jobId={undefined} />
             <br></br>
-            <JobForms jobList={jobList} setJobList={setJobList} />
+            {/* <JobForms jobList={jobList} setJobList={setJobList} /> */}
         </div>
     )
   }

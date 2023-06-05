@@ -6,32 +6,65 @@ import { UserContext } from '../contexts/user.context';
 import LogOutLink from '@/app/components/LogOutLink';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 
 export default function Page() {
- const { user, getValidAccessToken } = useContext(UserContext);
-// Once a user logs in to our app, we don’t want to ask them for their
-// credentials again every time the user refreshes or revisits our app, 
-// so we are checking if the user is already logged in and
-// if so we are redirecting the user to the home page.
-// Otherwise we will do nothing and let the user to login.
+ const { user, getValidAccessToken, setJobs, setAlertMessage, token, fetchUser } = useContext(UserContext);
+ const router = useRouter();
+
+async function getJobs(user_id:string) {
+    try {
+        const getReq = {
+            "method": "GET",
+            "Content-type": "application/json",
+            "headers": {"Authentication": `Bearer ${token}`}
+          };
+        let url : string = `/api/jobs/read?id=${user_id}`
+        const res = await fetch(`${url}`, getReq);
+        if (!(res.status === 200)) {
+          setAlertMessage({message: "Failed to fetch data.", severity: "error"})
+            router.push("/");
+          throw new Error('Failed to fetch data');
+          
+        }
+        let result = await res.json(); 
+        setJobs(result.data);
+    } catch (e) {
+        console.error(e)
+    }
+
+  }
+
+
 const loadToken = async () => {
   try {
-    if (user) {
-      await getValidAccessToken(user);
-    }
+      await getValidAccessToken(user!);
   } catch (err) {
     console.error(err)
   }
-
 }
 
-// This useEffect will run only once when the component is mounted.
-// Hence this is helping us in verifying whether the user is already logged in
-// or not.
+
+
+ // Checking if the user is already logged in and if so, redirecting the user to the home page. Otherwise, lets the user to login.
+ const loadUser = async () => {
+  if (!user) {
+    const fetchedUser = await fetchUser();
+    return fetchedUser;
+  }
+}
+
 useEffect(() => {
-  loadToken(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  loadUser(); 
+  if (user) {
+    loadToken();
+    getJobs(user?.id)
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
+
+
 
 const [hasMounted, setHasMounted] = useState(false);
 useEffect(() => {

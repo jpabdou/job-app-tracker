@@ -8,19 +8,16 @@ import { UserContext } from "../../../contexts/user.context";
 import NavBar from "@/app/components/NavBar";
 
 export default function EditJobForm( ) {
-  const {user, token} = useContext(UserContext)
+  const {user, token, jobs} = useContext(UserContext)
   const defaultJob : Job | undefined = undefined
   const [editJob, setEditJob] = useState(defaultJob)
+
   async function getJob(user_id:string, jobId: string) {
-    
-    
-    // const router = useRouter();
     const getReq = {
         method: "GET",
         headers: {Authentication: `Bearer ${token}`}
       };
-    const res = await fetch(`/api/jobs/read?id=${user?.id}&jobid=${jobId}`, getReq);
-
+    const res = await fetch(`/api/jobs/read?id=${user_id}&jobid=${jobId}`, getReq);
    const job = await res.json()
     return job.data;}
 
@@ -28,7 +25,8 @@ export default function EditJobForm( ) {
     // const {editJob} = await getJob(user?.id!, jobId);
     useEffect(()=>{
      getJob(user?.id!, jobId).then(data=>{
-      setEditJob(data)})
+
+      setEditJob({...data, jobNumber: jobs.findIndex(job=>job.id === jobId)})})
     },[])
 
     return(

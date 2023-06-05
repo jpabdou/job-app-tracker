@@ -3,72 +3,106 @@ import React, {useContext, useEffect,useState} from "react";
 import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job, JobEntry } from "../../../types/Jobs";
-import JobRow from "./JobRow";
 import JobRowSmall from "./JobRowSmall";
+import JobRow from "./JobRow";
+import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination } from "@mui/material";
 
-import { Table, TableRow, TableHead, TableCell, TableBody, Box } from "@mui/material";
 
 export default function JobList() {
-    const { user, token, setAlertMessage } = useContext(UserContext);
+    const { user, token, setAlertMessage, jobs, setJobs } = useContext(UserContext);
     const router = useRouter();
 
 
-    let id = user?.id;
     const jobArr : Job[] = []
-    const [jobs, setJobs] = useState(jobArr);
-    const [filteredJobs, setFilteredJobs] = useState(jobArr);
-    const [filterSetting,setFilterSetting] = useState({id: "title", filterTerm: ""});
-    const filterArr: string[] = ["company", "title","dateApplied","emailFollowup","appStatus"];
-    
+    const [filteredJobs, setFilteredJobs] = useState(jobs);
+    const initialFilterEntry = {filterKey: "title", filterTerm: ""}
+    const [filterEntry, setFilterEntry] = useState(initialFilterEntry);
+    const [filterSetting,setFilterSetting] = useState(initialFilterEntry);
+    const filterArr: string[] = ["company", "title", "dateApplied", "emailFollowup", "appStatus"];
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     const handleChange =(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>)=>{
       const {name, value} = e.target;
-      setFilterSetting({...filterSetting, [name]: value});
+      setFilterEntry({...filterEntry, [name]: value});
     }
 
     const submit = (e: React.ChangeEvent<HTMLFormElement>) =>{
       e.preventDefault();
-      console.log('submit')
-      let result = jobs.filter(job=>{job[filterSetting.id as keyof Job].includes(filterSetting.filterTerm)})
-      setFilteredJobs(result);
+      setFilterSetting(filterEntry);
     }
 
     async function getJobs(user_id:string) {
-        try {
-            const getReq = {
-                "method": "GET",
-                "Content-type": "application/json",
-                "headers": {"Authentication": `Bearer ${token}`}
-              };
-            let url : string = `/api/jobs/read?id=${user_id}`
-            const res = await fetch(`${url}`, getReq);
-            if (!(res.status === 200)) {
-              setAlertMessage({message: "Failed to fetch data.", severity: "error"})
-                router.push("/");
-              throw new Error('Failed to fetch data');
-              
-            }
-            let result = await res.json(); 
-            setJobs(result.data);
-            setFilteredJobs(result.data);
-            if (result.data.length === 0) {
-                router.push("/job-entry")
-                setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"})
-            }
-        } catch (e) {
-            console.error(e)
-        }
-
+      try {
+          const getReq = {
+              "method": "GET",
+              "Content-type": "application/json",
+              "headers": {"Authentication": `Bearer ${token}`}
+            };
+          let url : string = `/api/jobs/read?id=${user_id}`
+          const res = await fetch(`${url}`, getReq);
+          if (!(res.status === 200)) {
+            setAlertMessage({message: "Failed to fetch data.", severity: "error"})
+              router.push("/");
+            throw new Error('Failed to fetch data');
+            
+          }
+          return res.json()
+          
+      } catch (e) {
+          console.error(e)
       }
+  
+    }
 
 
     useEffect(()=>{
-      if (id) {
-            getJobs(id)
+      if (jobs.length === 0) {
+        if (user){
+          getJobs(user?.id).then(result=>{
+            if (result.data.length === 0) {
+              router.push("/job-entry")
+              setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"})
+            }
+            else{
+              let results: Job[] = result.data;
+            setJobs(results);
+            setFilteredJobs(result.data);
+          }
+          }
+          )
+
         } else {
             router.push("/")
             setAlertMessage({message:"Not Logged In.", severity: "error"})            
         }
-    },[])
+    }},[])
+
+
+
+    const handleChangePage = (event: unknown, newPage: number) => {
+      setPage(newPage);
+    };
+  
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setRowsPerPage(parseInt(event.target.value, 10));
+      setPage(0);
+    };
+
+    const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - jobs.length) : 0;
+
+  const visibleRows = React.useMemo(
+    () =>{
+      return filteredJobs
+      .filter((job)=>job[filterSetting.filterKey as keyof Job].toLocaleLowerCase('en-US').includes(filterSetting.filterTerm.toLocaleLowerCase('en-US')))
+      .slice(
+        page * rowsPerPage,
+        (page+1) * rowsPerPage,
+      )},
+    [ filteredJobs, filterSetting ,page, rowsPerPage]
+  );
+
 
     const [hasMounted, setHasMounted] = useState(false);
     useEffect(() => {
@@ -81,15 +115,17 @@ export default function JobList() {
 
     return(
       <>
-        {/* <form onSubmit={submit}>
+        <div className="flex flex-row justify-center">
+        <form onSubmit={submit}>
           Filter by 
-          <label htmlFor="id">
-          <select value={filterSetting.id} name="id" onChange={handleChange}>
+          <select value={filterEntry.filterKey} className="mx-2" name="filterKey" onChange={handleChange}>
             {filterArr.map(ele=>{return(<option key={ele} value={ele}>{ele}</option>)})}
-          </select></label> for 
-          <input name="filterTerm" value={filterSetting.filterTerm} onChange={handleChange} type="text" />
-          <button className='border-spacing-2 border-black'>Filter</button>
-        </form> */}
+          </select> for 
+          <input name="filterTerm" className="mx-2" value={filterEntry.filterTerm} onChange={handleChange} type={filterEntry.filterKey === "dateApplied" ? "date" : "text"} />
+          <button className='border-spacing-2 border-black mx-2 underline'>Filter</button>
+        </form>
+        <button className="underline mx-2" onClick={()=>{setFilterSetting(initialFilterEntry)}}>Reset Filter</button>
+        </div>
         <Box sx={{ display: { xs: 'none', sm:'none', md: 'none', lg: 'block', xl:'block'}}}>
         <Table style={{ width: '100%' }} aria-label="simple table">
                     <TableHead>
@@ -108,28 +144,38 @@ export default function JobList() {
                             <TableCell align="center" sx={{fontSize: 18, fontWeight:'bold'}}>Update Job?</TableCell>
                         </TableRow>
                     </TableHead>
-            {filteredJobs.length>0 ? filteredJobs.map((job,idx)=>{
-                return(
-                    <JobRow key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
-                )
-            }) : 
-            <TableBody>
-
+            <TableBody>          
+            {jobs.length >0 ?
+            visibleRows.map((job,idx)=>{
+              return(<JobRow key={job.id!} idx={job.jobNumber} jobId={job.id!} />)
+            })
+          : 
             <TableRow
             key="not-available"
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
           >
-            <TableCell scope="row">Loading...</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-            <TableCell align="center">N/A</TableCell>
-          </TableRow>
-          </TableBody>}
+            <TableCell colSpan={7}>Loading...</TableCell>
+          </TableRow>}
+          
+          {emptyRows > 0 && (
+                <TableRow                   
+                style={{
+                  height: 53 * emptyRows,
+                }}>
+                  <TableCell colSpan={7} />
+                </TableRow>
+              )}
+              </TableBody>
             </Table>
+            <TablePagination 
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredJobs.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </Box>
         <Box sx={{ display: { xs: 'block', sm:'block', md: 'block', lg: 'none', xl:'none'}}}>
         <Table style={{ width: '100%' }} aria-label="simple table">
@@ -141,9 +187,9 @@ export default function JobList() {
                             <TableCell align="center" sx={{fontSize: 18, fontWeight:'bold'}}>Update Job?</TableCell>
                         </TableRow>
                     </TableHead>
-            {filteredJobs.length>0 ? filteredJobs.map((job,idx)=>{
+                    {jobs.length >0 ? visibleRows.map((job,idx)=>{
                 return(
-                    <JobRowSmall key={idx} setJobs={setJobs} jobs={jobs} idx={idx} jobId={job._id.toString()} />
+                  <JobRowSmall key={idx + (page * rowsPerPage)} idx={idx+(page * rowsPerPage)} jobId={job.id!} />
                 )
             }) : 
             <TableBody>
@@ -159,6 +205,15 @@ export default function JobList() {
           </TableRow>
           </TableBody>}
             </Table>
+            <TablePagination 
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredJobs.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </>
 

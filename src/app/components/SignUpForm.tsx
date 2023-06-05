@@ -87,7 +87,7 @@ if (!hasMounted) {
  return( 
  <div>
   <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "300px", margin: "auto" }} onSubmit={onSubmit}>
-   <h2 className="text-xl m-5 text-center">Sign-up</h2>
+   <h2 className="text-xl self-center text-center">Sign-up</h2>
    <TextField
      label="Email"
      type="email"
@@ -114,7 +114,7 @@ if (!hasMounted) {
    <button className={disabled ? disabledButtonSetting: buttonSetting} disabled={disabled} onClick={()=>{setDisplayError(disabled ? true : false)}}>
      Sign-up
    </button>
-   <p>Have an account already? <Link className="underline font-semibold" href="/login">Log-in</Link></p>
+   <p className="my-3">Have an account already? <Link className="underline font-semibold" href="/login">Log-in</Link></p>
    </div>
  </form>
  </div>

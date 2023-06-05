@@ -3,6 +3,8 @@ import { NextResponse, NextRequest } from 'next/server';
 
 import clientPromise from "../../../../../lib/mongodb";
 
+// not used in app
+
 export async function POST(request: NextRequest) {
     if (request.method === 'POST') {
 

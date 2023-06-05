@@ -11,7 +11,7 @@ interface props {
   }
 interface Job {company: string, title: string, jobLink: string, jobDescription: string, location: string, dateApplied: string, applicationRoute: string, outreachContact: string, emailFollowup: string, appStatus: string};
 
-export default function JobForms(props: props) {
+function JobForms(props: props) {
     interface JobError {company: number[], title: number[], jobLink: number[], jobDescription: number[], location: number[]};
     // let initialJobErrors : JobError = {company: [], title: [], jobLink: [], jobDescription: [], location: []};
 
@@ -118,7 +118,7 @@ export default function JobForms(props: props) {
 
 
       const jobTest = (requiredElements: Array<string>, job: Job) =>{
-        return requiredElements.some(ele=>{return job[ele as keyof Job].trim().length === 0});
+        return requiredElements.some(ele=>{return job[ele as Exclude<keyof Job, ["_id", "id", "jobNumber","user_id"]>].trim().length === 0});
 
     };
 
@@ -159,7 +159,7 @@ export default function JobForms(props: props) {
                 {inputArr.map(inputElement=>{
                     return(                
                         <div key={inputElement[0]} className={divInputSetting}>
-                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && job[inputElement[0] as keyof Job].trim().length ===0 && highlightRequiredSetting}`}>
+                    <label htmlFor={inputElement[0]} className={`${requiredSetting} ${highlightOn && job[inputElement[0] as Exclude<keyof Job, ["_id", "id", "jobNumber","user_id"]>].trim().length ===0 && highlightRequiredSetting}`}>
                         {inputElement[1]}:</label>
                         <input name={inputElement[0]} type={inputElement[0] === "dateApplied" ? "date" : "text"} value={job[inputElement[0] as keyof Job]} placeholder={`Enter ${inputElement[1]} Here`} onChange={(event: React.ChangeEvent<HTMLInputElement>)=>handleJobUpdateInput(event,idx)} />
                         

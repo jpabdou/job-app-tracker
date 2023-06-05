@@ -9,24 +9,22 @@ import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
-    jobs: Job[];
-    setJobs: (jobs: Job[]) => void;
     idx: number;
   }
 
 export default function JobRowSmall(props: props) {
 
 
-    const { user,token, setAlertMessage } = useContext(UserContext);
+    const { user,token, setAlertMessage, jobs, setJobs } = useContext(UserContext);
     const router = useRouter();
 
-    let {jobs, setJobs, jobId, idx} = props;
-    let initialJobEntryInput :  JobEntry ={company: "", title: "", applicationRoute: "Not Applied Yet", outreachContact: "", dateApplied: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", _id: ""};
+    let {jobId, idx} = props;
+    let initialJobEntryInput :  JobEntry ={company: "", title: "", jobNumber: jobs.length, applicationRoute: "Not Applied Yet", outreachContact: "", dateApplied: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", id:"", _id: ""};
     initialJobEntryInput = jobs[idx];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
-    const [jobEntry, setJobEntry] = useState(initialJobEntryInput);
+    const [job, setJob] = useState(initialJobEntryInput);
     const [visible, setVisible] = useState(false)
 
     const updateJob = async (job: JobEntry, jobId: string) => {
@@ -53,14 +51,14 @@ export default function JobRowSmall(props: props) {
         let val: (string | number) = event.target.value;
         let name: string = event.target.name;
             setVisible(true);
-            setJobEntry({...jobEntry, [name]: val});
+            setJob({...job, [name]: val});
         }
 
     const handleSelectInput= (event: SelectChangeEvent) => {
         let val: (string | number) = event.target.value;
         let name: string = event.target.name;
         setVisible(true);
-            setJobEntry({...jobEntry, [name]: val});
+            setJob({...job, [name]: val});
         }
     
     const handleAppRouteInput = (event: SelectChangeEvent) =>{
@@ -68,7 +66,7 @@ export default function JobRowSmall(props: props) {
         let name: string = event.target.name;      
         const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
         setVisible(true);
-        setJobEntry({...jobEntry, 
+        setJob({...job, 
             appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
             emailFollowup: val=== appStatusArr[2] ? "yes" : "no", [name]: val});
 
@@ -95,21 +93,21 @@ export default function JobRowSmall(props: props) {
             key={`job ${idx+1}`}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link className="underline text-xl" href={`/job-list/${jobId}`}>{jobEntry.title} - {jobEntry.company}</Link></TableCell>
+            <TableCell scope="row"><Link prefetch={false} className="underline text-xl" href={`/job-list/${jobId}`}>{job.title} - {job.company}</Link></TableCell>
             <TableCell align="center">{jobs[idx].dateApplied}</TableCell>         
             <TableCell align="center">
                 <FormControl>
-                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={jobEntry.appStatus} />
+                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={job.appStatus} />
 
                 </FormControl>
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{
                                 let target: Job = jobs[idx];
-                                const {applicationRoute, outreachContact, appStatus, emailFollowup} = jobEntry
+                                const {applicationRoute, outreachContact, appStatus, emailFollowup} = job
                                jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
                                setJobs([...jobs]);
-                               updateJob(jobEntry, jobId!).then(res=>{
+                               updateJob(job, jobId!).then(res=>{
                                 setVisible(false);               
                             }
 )

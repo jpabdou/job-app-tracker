@@ -96,7 +96,7 @@ const LogInForm = (props: props) => {
  return ( 
  <div>
   <form style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",maxWidth: "720px", margin: "auto" }} onSubmit={onSubmit}>
-   <h2 className="text-xl m-5 text-center">{reset ? "Reset Password" : "Log-in"}</h2>
+   <h2 className="text-xl self-center text-center">{reset ? "Reset Password" : "Log-in"}</h2>
    <TextField
      label="Email"
      type="email"
