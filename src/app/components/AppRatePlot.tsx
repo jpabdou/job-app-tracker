@@ -7,8 +7,8 @@ import * as d3 from "d3";
 import Plot from 'react-plotly.js';
 
 interface props {
-  weeks: string[],
-  plotData: {_id: string, count: number}[]
+  weeks: string[] | undefined,
+  plotData: {_id: string, count: number}[] | undefined
 }
 
 export default function AppRatePlot(props: props) {
@@ -27,13 +27,13 @@ export default function AppRatePlot(props: props) {
        }
 
        useEffect(()=>{
-        if (plotData.length > 0){
+        if (plotData){
         let map : IHashMap = {}
         let i: number = 0
-        for (let point of plotData) {
-          if (point._id !== weeks[i]){
-                while (point._id !== weeks[i] && i<weeks.length) {
-              data.x.push(weeks[i]);
+        for (let point of plotData!) {
+          if (point._id !== weeks![i]){
+                while (point._id !== weeks![i] && i<weeks!.length) {
+              data.x.push(weeks![i]);
               data.y.push(0);
               i++
             }}
@@ -47,7 +47,7 @@ export default function AppRatePlot(props: props) {
       
     return(
       <>
-        {plotData.length > 0 && <Plot
+        {plotData && <Plot
         data={[
           {
             x: data.x,

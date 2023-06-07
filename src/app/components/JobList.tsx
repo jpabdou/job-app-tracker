@@ -23,7 +23,7 @@ export default function JobList() {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [revealData, setRevealData] = useState(false);
     const [weeks, setWeeks] = useState<Array<string>>([])
-    const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
+    const [plotData, setPlotData] = useState<{_id: string, count: number}[] | undefined>(undefined)
 
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
@@ -104,7 +104,7 @@ export default function JobList() {
             setAlertMessage({message:"Not Logged In.", severity: "error"})            
         }
     }
-    if (plotData.length=== 0 && user) {
+    if ((!plotData || plotData.length === 0) && user) {
       getData(user!.id).then(result=>{
         let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
         setPlotData(plotRes);
@@ -157,8 +157,8 @@ export default function JobList() {
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
-          <div className="my-2">
-          {/* {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />} */}
+          <div className="my-2 self-center">
+          {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
 
           </div>
           <div className="flex flex-row justify-center">
