@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         weekBoundaries.unshift(weekDate)
       }
 
-      const appFreqPipeling= [
+      const pipelineAppFreq= [
         {$match: { "user_id": user_id }},
           {$bucket: {
             groupBy: "$dateApplied",                        // Field to group by
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
 
         let applicationFreqResult = await db_connect
         .collection("jobsData")
-        .aggregate(appFreqPipeling)
+        .aggregate(pipelineAppFreq)
         .toArray();
 
         weekBoundaries.pop()

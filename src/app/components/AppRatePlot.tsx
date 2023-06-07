@@ -1,18 +1,13 @@
 "use client"
 import React, {useContext, useEffect,useState} from "react";
-// import { UserContext } from "@/contexts/user.context";
-import { useRouter } from "next/navigation";
-// import {lineY, ruleY, plot} from "@observablehq/plot";
-// import * as d3 from "d3";
 import Plot from 'react-plotly.js';
 
 interface props {
-  weeks: string[] | undefined,
-  plotData: {_id: string, count: number}[] | undefined
+  weeks: string[],
+  plotData: {_id: string, count: number}[] | null
 }
 
 export default function AppRatePlot(props: props) {
-    const router = useRouter();
     const {weeks, plotData} = props;
     const [data, setData] = useState<{x: string[], y: number[]}>({x:[], y:[]});
 

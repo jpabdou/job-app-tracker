@@ -23,7 +23,7 @@ export default function JobList() {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [revealData, setRevealData] = useState(false);
     const [weeks, setWeeks] = useState<Array<string>>([])
-    const [plotData, setPlotData] = useState<{_id: string, count: number}[] | undefined>(undefined)
+    const [plotData, setPlotData] = useState<{_id: string, count: number}[] | null>(null)
 
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
