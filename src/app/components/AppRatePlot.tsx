@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 
 interface props {
   weeks: string[],
-  plotData: {_id: string, count: number}[] | null
+  plotData: {_id: string, count: number}[]
 }
 
 export default function AppRatePlot(props: props) {
@@ -22,7 +22,7 @@ export default function AppRatePlot(props: props) {
        }
 
        useEffect(()=>{
-        if (plotData && plotData.length > 0){
+        if (plotData.length > 0){
         let map : IHashMap = {}
         let i: number = 0
         for (let point of plotData!) {
