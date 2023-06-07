@@ -157,7 +157,7 @@ export default function JobList() {
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
-          <div className="self-center my-2">
+          <div className="my-2">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
 
           </div>
