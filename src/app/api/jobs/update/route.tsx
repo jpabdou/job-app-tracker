@@ -11,23 +11,23 @@ export async function PUT(request: NextRequest) {
         let body = await request.json() 
         const client = await clientPromise;
       let db_connect = client.db("jobsData");
-      const { hash, searchParams } = new URL(request.url!);
+      const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
       let jobId: string = searchParams.get("jobid") || "";
       let myquery = { "user_id": user_id,
         "_id": new ObjectId(jobId) };
       let newvalues = {
         $set: {
-         "company": body.company,
-         "title": body.title,
-         "jobLink": body.jobLink,
-         "jobDescription": body.jobDescription || "No Description Added",
-         "location": body.location,
-         "applicationRoute": body.applicationRoute,
-         "dateApplied": body.dateApplied,
-         "appStatus": body.appStatus || "Not Yet Applied",
-         "outreachContact": body.outreachContact || "",
-         "emailFollowup": body.emailFollowup || "no" 
+         "company": body.company ? body.company : "No Company Added",
+         "title": body.title ? body.title : "No Title Added",
+         "jobLink": body.jobLink ? body.jobLink : "No Link Added" ,
+         "jobDescription": body.jobDescription ? body.jobDescription  : "No Description Added",
+         "location": body.location ? body.location : "remote",
+         "applicationRoute": body.applicationRoute ? body.applicationRoute : "Not Yet Applied",
+         "dateApplied": body.dateApplied ? body.dateApplied : new Date().toJSON().slice(0,10),
+         "appStatus": body.appStatus ? body.appStatus : "Not Yet Applied",
+         "outreachContact": body.outreachContact ? body.outreachContact : "",
+         "emailFollowup": body.emailFollowup ? body.emailFollowup : "no" 
         },
       };
       let updateResult = await db_connect

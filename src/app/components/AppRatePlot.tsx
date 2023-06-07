@@ -27,7 +27,7 @@ export default function AppRatePlot(props: props) {
        }
 
        useEffect(()=>{
-        if (plotData){
+        if (plotData && plotData.length > 0){
         let map : IHashMap = {}
         let i: number = 0
         for (let point of plotData!) {

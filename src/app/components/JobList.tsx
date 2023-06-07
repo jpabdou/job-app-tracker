@@ -104,20 +104,20 @@ export default function JobList() {
             setAlertMessage({message:"Not Logged In.", severity: "error"})            
         }
     }
-    if ((!plotData || plotData.length === 0) && user) {
-      getData(user!.id).then(result=>{
-        let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
-        setPlotData(plotRes);
-        let weeksRes: string[] = result.data.weeks
-        setWeeks(weeksRes)
-      
-      }
-      )
-    }
-  
-  
   },[])
 
+  useEffect(()=>{
+  if (jobs.length > 0) {
+    getData(user!.id).then(result=>{
+      let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
+      setPlotData(plotRes);
+      let weeksRes: string[] = result.data.weeks
+      setWeeks(weeksRes)
+    
+    }
+    )
+  }
+},[jobs])
 
 
     const handleChangePage = (event: unknown, newPage: number) => {

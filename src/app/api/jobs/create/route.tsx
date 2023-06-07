@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
       let user_id: string  = searchParams.get("id") || "";
       let myobj = {
        
-         "company": body.company,
-         "title": body.title,
-         "jobLink": body.jobLink,
-         "jobDescription": body.jobDescription || "No Description Added",
-         "location": body.location,
-         "applicationRoute": body.applicationRoute,
-         "dateApplied": body.dateApplied,
-         "appStatus": body.appStatus || "Not Yet Applied",
-         "outreachContact": body.outreachContact || "",
-         "emailFollowup": body.emailFollowup || "no",
+        "company": body.company ? body.company : "No Company Added",
+        "title": body.title ? body.title : "No Title Added",
+        "jobLink": body.jobLink ? body.jobLink : "No Link Added" ,
+        "jobDescription": body.jobDescription ? body.jobDescription  : "No Description Added",
+        "location": body.location ? body.location : "remote",
+        "applicationRoute": body.applicationRoute ? body.applicationRoute : "Not Yet Applied",
+        "dateApplied": body.dateApplied ? body.dateApplied : new Date().toJSON().slice(0,10),
+        "appStatus": body.appStatus ? body.appStatus : "Not Yet Applied",
+        "outreachContact": body.outreachContact ? body.outreachContact : "",
+        "emailFollowup": body.emailFollowup ? body.emailFollowup : "no",
          user_id: user_id
 
       };
