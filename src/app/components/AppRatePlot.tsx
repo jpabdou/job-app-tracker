@@ -1,9 +1,9 @@
 "use client"
 import React, {useContext, useEffect,useState} from "react";
-import { UserContext } from "@/contexts/user.context";
+// import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
-import {lineY, ruleY, plot} from "@observablehq/plot";
-import * as d3 from "d3";
+// import {lineY, ruleY, plot} from "@observablehq/plot";
+// import * as d3 from "d3";
 import Plot from 'react-plotly.js';
 
 interface props {
@@ -44,7 +44,15 @@ export default function AppRatePlot(props: props) {
 
         setData({...data})}
        }, [plotData])
-      
+
+       const [hasMounted, setHasMounted] = useState(false);
+       useEffect(() => {
+         setHasMounted(true);
+       }, []);
+       if (!hasMounted) {
+         return null;
+       }
+
     return(
       <>
         {plotData && <Plot

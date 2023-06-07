@@ -11,16 +11,16 @@ export async function GET(request: NextRequest) {
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
 
-      // const pipelineFollowup=[
-      //   { $match: { emailFollowup: "yes", "user_id": user_id } },
-      //   { $group: { _id: "$appStatus", count: { $sum: 1 } } }
-      // ]
+      const pipelineFollowup=[
+        { $match: { emailFollowup: "yes", "user_id": user_id } },
+        { $group: { _id: "$appStatus", count: { $sum: 1 } } }
+      ]
 
-      // const pipelineNonFollowup = [
-      //   { $match: { emailFollowup: {$eq: "no"},  "user_id": {$eq: user_id}, "appStatus": {$ne: "Not Applied Yet"}} },
-      //   { $group: { _id: "$appStatus", count: { $sum: 1 } } },
-      //   {$sort: { "appStatus": 1}}
-      // ]
+      const pipelineNonFollowup = [
+        { $match: { emailFollowup: {$eq: "no"},  "user_id": {$eq: user_id}, "appStatus": {$ne: "Not Applied Yet"}} },
+        { $group: { _id: "$appStatus", count: { $sum: 1 } } },
+        {$sort: { "appStatus": 1}}
+      ]
 
       const now = new Date();
       const currentDate = now.toJSON().slice(0,10);
@@ -49,15 +49,15 @@ export async function GET(request: NextRequest) {
         
       ] 
 
-      // let followupResult = await db_connect
-      //   .collection("jobsData")
-      //   .aggregate(pipelineFollowup)
-      //   .toArray();
+      let followupResult = await db_connect
+        .collection("jobsData")
+        .aggregate(pipelineFollowup)
+        .toArray();
       
-      //   let nonFollowupResult = await db_connect
-      //   .collection("jobsData")
-      //   .aggregate(pipelineNonFollowup)
-      //   .toArray();
+        let nonFollowupResult = await db_connect
+        .collection("jobsData")
+        .aggregate(pipelineNonFollowup)
+        .toArray();
 
         let applicationFreqResult = await db_connect
         .collection("jobsData")
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
         .toArray();
 
         weekBoundaries.pop()
-        return NextResponse.json({data:{/*noFollowup: nonFollowupResult, followup: followupResult,*/ applicationFreq: applicationFreqResult, weeks: weekBoundaries}});
+        return NextResponse.json({data:{noFollowup: nonFollowupResult, followup: followupResult, applicationFreq: applicationFreqResult, weeks: weekBoundaries}});
 
       
     } catch (e) {
