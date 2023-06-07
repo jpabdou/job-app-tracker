@@ -27,6 +27,7 @@ export default function AppRatePlot(props: props) {
        }
 
        useEffect(()=>{
+        if (plotData.length > 0){
         let map : IHashMap = {}
         let i: number = 0
         for (let point of plotData) {
@@ -41,11 +42,12 @@ export default function AppRatePlot(props: props) {
           i++;
         }
 
-        setData({...data})
+        setData({...data})}
        }, [plotData])
       
     return(
-      <Plot
+      <>
+        {plotData.length > 0 && <Plot
         data={[
           {
             x: data.x,
@@ -62,6 +64,8 @@ export default function AppRatePlot(props: props) {
         yaxis: {
           title: '# of applications/week'
         }} }
-      />
+      />}
+      </>
+
     )
 }
