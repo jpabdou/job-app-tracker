@@ -30,20 +30,15 @@ export default function AppRatePlot(props: props) {
         let map : IHashMap = {}
         let i: number = 0
         for (let point of plotData) {
-          if (point._id === weeks[i]){
-          data.x.push(point._id);
-          data.y.push(point.count);
-          i++;
-        } else {
-            while (point._id !== weeks[i] && i<weeks.length) {
+          if (point._id !== weeks[i]){
+                while (point._id !== weeks[i] && i<weeks.length) {
               data.x.push(weeks[i]);
               data.y.push(0);
               i++
-            }
+            }}
             data.x.push(point._id);
-            data.y.push(point.count);
-            i++;
-          }
+            data.y.push(point.count); 
+          i++;
         }
 
         setData({...data})
