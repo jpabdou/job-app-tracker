@@ -6,7 +6,7 @@ import { Job, JobEntry } from "../../../types/Jobs";
 import JobRowSmall from "./JobRowSmall";
 import JobRow from "./JobRow";
 import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination } from "@mui/material";
-
+import AppRatePlot from "./AppRatePlot";
 
 export default function JobList() {
     const { user, token, setAlertMessage, jobs, setJobs } = useContext(UserContext);
@@ -21,6 +21,12 @@ export default function JobList() {
     const filterArr: string[] = ["company", "title", "dateApplied", "emailFollowup", "appStatus"];
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [revealData, setRevealData] = useState(false);
+    const [weeks, setWeeks] = useState<Array<string>>([])
+    const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
+
+
+    const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
     const handleChange =(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>)=>{
       const {name, value} = e.target;
@@ -55,6 +61,28 @@ export default function JobList() {
   
     }
 
+    async function getData(user_id:string) {
+      try {
+          const getReq = {
+              "method": "GET",
+              "Content-type": "application/json",
+              "headers": {"Authentication": `Bearer ${token}`}
+            };
+          let url : string = `/api/jobs/getCounts?id=${user_id}`
+          const res = await fetch(`${url}`, getReq);
+          if (!(res.status === 200)) {
+            setAlertMessage({message: "Failed to fetch results.", severity: "error"})
+              router.push("/");
+            throw new Error('Failed to fetch results');
+            
+          }
+          return res.json()
+          
+      } catch (e) {
+          console.error(e)
+      }
+  
+    }
 
     useEffect(()=>{
       if (jobs.length === 0) {
@@ -71,12 +99,24 @@ export default function JobList() {
           }
           }
           )
-
         } else {
             router.push("/")
             setAlertMessage({message:"Not Logged In.", severity: "error"})            
         }
-    }},[])
+    }
+    if (plotData.length=== 0 && user) {
+      getData(user!.id).then(result=>{
+        let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
+        setPlotData(plotRes);
+        let weeksRes: string[] = result.data.weeks
+        setWeeks(weeksRes)
+      
+      }
+      )
+    }
+  
+  
+  },[])
 
 
 
@@ -115,16 +155,23 @@ export default function JobList() {
 
     return(
       <>
-        <div className="flex flex-row justify-center">
-        <form onSubmit={submit}>
-          Filter by 
-          <select value={filterEntry.filterKey} className="mx-2" name="filterKey" onChange={handleChange}>
-            {filterArr.map(ele=>{return(<option key={ele} value={ele}>{ele}</option>)})}
-          </select> for 
-          <input name="filterTerm" className="mx-2" value={filterEntry.filterTerm} onChange={handleChange} type={filterEntry.filterKey === "dateApplied" ? "date" : "text"} />
-          <button className='border-spacing-2 border-black mx-2 underline'>Filter</button>
-        </form>
-        <button className="underline mx-2" onClick={()=>{setFilterSetting(initialFilterEntry)}}>Reset Filter</button>
+        <div className="flex flex-col flex-wrap align-evenly justify-evenly">
+          <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
+          <div className="self-center my-2">
+          {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
+
+          </div>
+          <div className="flex flex-row justify-center">
+          <form onSubmit={submit}>
+            Filter by 
+            <select value={filterEntry.filterKey} className="mx-2" name="filterKey" onChange={handleChange}>
+              {filterArr.map(ele=>{return(<option key={ele} value={ele}>{ele}</option>)})}
+            </select> for 
+            <input name="filterTerm" className="mx-2" value={filterEntry.filterTerm} onChange={handleChange} type={filterEntry.filterKey === "dateApplied" ? "date" : "text"} />
+            <button className='border-spacing-2 border-black mx-2 underline'>Filter</button>
+          </form>
+          <button className="underline mx-2" onClick={()=>{setFilterSetting(initialFilterEntry)}}>Reset Filter</button>
+          </div>
         </div>
         <Box sx={{ display: { xs: 'none', sm:'none', md: 'none', lg: 'block', xl:'block'}}}>
         <Table style={{ width: '100%' }} aria-label="simple table">

@@ -1,7 +1,7 @@
 "use client"
 import React, { FC, createContext,useContext , useState } from "react";
 import Realm, { App, Credentials } from "realm-web";
-import { Job } from "../../types/Jobs";
+import { Job, SankeyData, SankeyNode } from "../../types/Jobs";
 
 // Creating a Realm App Instance
 const app = new App(process.env.NEXT_PUBLIC_APP_ID || "");
@@ -23,6 +23,8 @@ interface Values{
   setTrial: (trial: boolean) => void,
   jobs: Job[],
   setJobs: (jobs: Job[]) => void,
+  sankeyPlotData: {followup: SankeyData, noFollowup: SankeyData},
+  setSankeyPlotData: (sankeyPlotData: {followup: SankeyData, noFollowup: SankeyData}) => void,
   alertMessage: alertType,
   setAlertMessage: (alertMessage: alertType) => void,
   fetchUser: () => Promise<boolean | Realm.User>,
@@ -48,6 +50,8 @@ export var useGlobalContext = () => useContext(UserContext)
 interface Props {
   children: React.ReactNode;
 }
+
+
  
 export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
@@ -55,6 +59,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const [trial, setTrial] = useState<boolean>(false);
  const [jobs, setJobs] = useState<Job[]>([]);
  const [alertMessage, setAlertMessage] = useState({message: "", severity: ""})
+const [sankeyPlotData, setSankeyPlotData] = useState<{followup: SankeyData, noFollowup: SankeyData}>({followup: {} as SankeyData, noFollowup: {}  as SankeyData})
 
  const emailPasswordLogin = async (email: string, password: string) => {
    const credentials = Credentials.emailPassword(email, password);
@@ -188,6 +193,8 @@ const trialLogOut = () =>{
     setTrial,
     jobs,
     setJobs,
+    sankeyPlotData,
+    setSankeyPlotData,
     alertMessage,
     setAlertMessage, 
     fetchUser, 
