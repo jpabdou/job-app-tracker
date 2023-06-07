@@ -158,7 +158,7 @@ export default function JobList() {
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2">
-          {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
+          {/* {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />} */}
 
           </div>
           <div className="flex flex-row justify-center">
