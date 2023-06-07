@@ -5,7 +5,6 @@ import { Job } from "../../../../types/Jobs";
 import { useParams, useRouter } from 'next/navigation';
 import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "../../../contexts/user.context";
-import NavBar from "@/app/components/NavBar";
 
 export default function EditJobForm( ) {
   const {user, token, jobs} = useContext(UserContext)
@@ -30,7 +29,7 @@ export default function EditJobForm( ) {
     },[])
 
     return(
-      <div className="m-5 text-center">
+      <div className="my-5 text-center">
         {editJob !==undefined && <ManualJobForm editJob={editJob} jobId={jobId} /> }
 
       </div>

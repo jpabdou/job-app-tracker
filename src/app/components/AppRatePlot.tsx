@@ -1,6 +1,6 @@
 "use client"
 import React, {useContext, useEffect,useState} from "react";
-import Plot from 'react-plotly.js';
+const Plot = require('react-plotly.js').default;
 
 interface props {
   weeks: string[],
