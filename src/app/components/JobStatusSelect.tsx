@@ -12,6 +12,7 @@ interface props {
       {value: "Not Applied Yet", text: "Not Applied Yet", optgroup: "Not Applied Yet"}, 
       {value: "Applied; Awaiting Phone Screen", text: "Awaiting Phone Screen", optgroup: "Applied"}, 
       {value: "Applied; Rejected", text: "Rejected", optgroup: "Applied"}, 
+      {value: "Applied; No Response", text: "No Response", optgroup: "Applied"}, 
       {value: "Completed Phone Screen; Awaiting Interview", text: "Awaiting Interview", optgroup: "Completed Phone Screen"}, 
       {value: "Completed Phone Screen; Rejected", text: "Rejected", optgroup: "Completed Phone Screen"}, 
       {value: "Completed Interview Round; Awaiting Next Round", text: "Awaiting Next Interview", optgroup: "Completed Interview Round"}, 

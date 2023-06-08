@@ -15,9 +15,14 @@ export default function JobList() {
 
     const jobArr : Job[] = []
     const [filteredJobs, setFilteredJobs] = useState(jobs);
-    const initialFilterEntry = {filterKey: "title", filterTerm: ""}
+
+    const initialFilterEntry = {filterKey: "title", filterTerm: ""};
     const [filterEntry, setFilterEntry] = useState(initialFilterEntry);
     const [filterSetting,setFilterSetting] = useState(initialFilterEntry);
+
+    const currentDate = new Date().toJSON().slice(0,10);
+    const [massUpdate, setMassUpdate] = useState(currentDate);
+
     const filterArr: string[] = ["company", "title", "dateApplied", "emailFollowup", "appStatus"];
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -27,6 +32,27 @@ export default function JobList() {
 
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
+    
+    const handleUpdateChange =(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>)=>{
+      const {value} = e.target;
+      setMassUpdate(value);
+    }
+
+    const submitUpdate = (e: React.ChangeEvent<HTMLFormElement>) =>{
+      e.preventDefault();
+      updateJobsNoResponse().then(res=>{
+        jobs.forEach(ele=>{
+          if (ele.dateApplied < massUpdate && ele.appStatus === "Applied; Awaiting Phone Screen") {
+            ele.appStatus = "Applied; No Response"
+          }
+        })
+        setJobs([...jobs])
+        setMassUpdate(currentDate);
+        router.refresh();
+      })
+
+      
+    }
 
     const handleChange =(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>)=>{
       const {name, value} = e.target;
@@ -60,8 +86,6 @@ export default function JobList() {
       }
   
     }
-
-
 
     useEffect(()=>{
       if (jobs.length === 0) {
@@ -124,6 +148,28 @@ export default function JobList() {
     }
   },[jobs])
 
+  
+  const updateJobsNoResponse = async () => {
+    const updateReq = {
+        "method": "PUT",
+        "body": JSON.stringify({weekDate: massUpdate}),
+        'Content-Type': 'application/json',
+        "headers": {"Authentication": `Bearer ${token}`}
+    };
+    try {
+        let url :string = `/api/jobs/updateNoResponses?id=${user?.id}`
+
+      const response = await fetch(url, updateReq);
+      let job = await response.json();
+      return job;
+    } catch (error) {
+                  console.error('unexpected error: ', error);
+            return 'An unexpected error occurred';
+               
+        }
+  };
+  
+
     const handleChangePage = (event: unknown, newPage: number) => {
       setPage(newPage);
     };
@@ -163,6 +209,10 @@ export default function JobList() {
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
+          <form className="flex flex-row flex-wrap align-evenly justify-evenly" onSubmit={submitUpdate}>
+            <input name="dateFilter" className="mx-2" value={massUpdate} onChange={handleUpdateChange} type="date" />
+            <button className="underline font-bold mx-2">{`Set all Awaiting Phone Screen posts before ${massUpdate} as No Response`}</button>
+          </form>
 
           </div>
           <div className="flex flex-row justify-center">
