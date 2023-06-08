@@ -22,7 +22,8 @@ export default function JobList() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [revealData, setRevealData] = useState(false);
-
+    const [weeks, setWeeks] = useState<string[]>([])
+    const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
 
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
@@ -84,6 +85,45 @@ export default function JobList() {
     }
   },[])
 
+
+  async function getData(user_id:string) {
+    try {
+        const getReq = {
+            "method": "GET",
+            "Content-type": "application/json",
+            "headers": {"Authentication": `Bearer ${token}`}
+          };
+        let url : string = `/api/jobs/getCounts?id=${user_id}`
+        const res = await fetch(`${url}`, getReq);
+        if (!(res.status === 200)) {
+          setAlertMessage({message: "Failed to fetch results.", severity: "error"})
+            router.push("/");
+          throw new Error('Failed to fetch results');
+          
+        }
+        return res.json()
+        
+    } catch (e) {
+        console.error(e)
+    }
+
+  }
+
+
+
+   useEffect(()=>{
+    if (jobs.length > 0 && user) {
+      getData(user?.id).then(result=>{
+        let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
+        setPlotData(plotRes);
+        let weeksRes: string[] = result.data.weeks
+        setWeeks(weeksRes)
+      
+      }
+      )
+    }
+  },[jobs])
+
     const handleChangePage = (event: unknown, newPage: number) => {
       setPage(newPage);
     };
@@ -122,7 +162,7 @@ export default function JobList() {
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
-          {revealData && <AppRatePlot />}
+          {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
 
           </div>
           <div className="flex flex-row justify-center">
