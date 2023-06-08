@@ -2,7 +2,8 @@
 import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import React, {useContext, useEffect,useState} from "react";
-const Plot = require('react-plotly.js');
+// const Plot = require('react-plotly.js');
+import dynamic from "next/dynamic";
 
 // interface props {
 //   weeks: string[],
@@ -15,6 +16,8 @@ export default function AppRatePlot() {
     const [weeks, setWeeks] = useState<string[]>([])
     const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
     const router = useRouter();
+    const Plot = dynamic(()=>import("react-plotly.js"), {ssr:false})
+
 
       const appStageArr: Array<string> = ["Not Applied Yet", "Applied", "Completed Phone Screen","Completed Interview Round", "Hired"];
 
