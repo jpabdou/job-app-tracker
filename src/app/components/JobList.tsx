@@ -120,11 +120,11 @@ export default function JobList() {
     return(
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
-          <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
+          {/* <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot />}
 
-          </div>
+          </div> */}
           <div className="flex flex-row justify-center">
           <form onSubmit={submit}>
             Filter by 
