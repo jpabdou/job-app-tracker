@@ -1,6 +1,6 @@
 <h1>What is this project?</h1>
 --
-<h2>A job application website made with Next.js, TypeScript, and MongoDB. It can be accessed <a href="https://job-app-tracker-orpin.vercel.app">here</a>.<h2>
+<h2>A job application website made with Next.js, TypeScript, and MongoDB and styled with Material-MUI, TailwindCSS, and Plotly.js. It can be accessed <a href="https://job-app-tracker-orpin.vercel.app">here</a>.<h2>
 <br></br>
   <h1>What is this app for?</h1>
       --
