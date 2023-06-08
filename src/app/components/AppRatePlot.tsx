@@ -2,7 +2,7 @@
 import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
 import React, {useContext, useEffect,useState} from "react";
-const Plot = require('react-plotly.js').default;
+const Plot = require('react-plotly.js');
 
 // interface props {
 //   weeks: string[],
@@ -60,7 +60,7 @@ export default function AppRatePlot() {
           )
         }
       },[jobs])
-      
+
       useEffect(()=>{
         if (plotData.length > 0){
         let map : IHashMap = {}
