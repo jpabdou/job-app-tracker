@@ -25,7 +25,7 @@ export default function ScreenAlert() {
     }
 
     setOpen(false);
-    setAlertMessage({message: "", severity: ""});
+    setAlertMessage({...alertMessage, message: ""});
     };
 
     return(

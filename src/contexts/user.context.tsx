@@ -51,8 +51,13 @@ interface Props {
   children: React.ReactNode;
 }
 
+interface RealmError {
+  error: string,
+  link: string,
+  error_code: string
+}
 
- 
+
 export const UserProvider: FC<Props>= ({ children }) => {
  const [user, setUser] = useState<Realm.User| undefined>(undefined);
  const [token, setToken] = useState<string | null>(null);
@@ -62,12 +67,21 @@ export const UserProvider: FC<Props>= ({ children }) => {
 const [sankeyPlotData, setSankeyPlotData] = useState<{followup: SankeyData, noFollowup: SankeyData}>({followup: {} as SankeyData, noFollowup: {}  as SankeyData})
 
  const emailPasswordLogin = async (email: string, password: string) => {
+  try {
    const credentials = Credentials.emailPassword(email, password);
    const authenticatedUser = await app.logIn(credentials);
    setUser(authenticatedUser);
    setTrial(false);
    setAlertMessage({message: "Logged In.", severity: "success"});
-   return authenticatedUser;
+   return authenticatedUser;}
+   catch (error) {
+    const knownError = error as RealmError;
+
+    setAlertMessage({message: knownError.error, severity: "error"})
+
+    throw error;
+  }
+
  };
 
  const emailPasswordReset = async (email: string, password: string, token: string, tokenId: string) => {
@@ -75,6 +89,10 @@ const [sankeyPlotData, setSankeyPlotData] = useState<{followup: SankeyData, noFo
     await app.emailPasswordAuth.resetPassword({password, token, tokenId});
     return emailPasswordLogin(email, password);
   } catch (error) {
+    const knownError = error as RealmError;
+
+    setAlertMessage({message: knownError.error, severity: "error"})
+
     throw error
   }
  }
@@ -85,6 +103,9 @@ const [sankeyPlotData, setSankeyPlotData] = useState<{followup: SankeyData, noFo
      setAlertMessage({message: "Successfully signed up. Check your email for a confirmation link.", severity: "success"});
      return true;
    } catch (error) {
+    const knownError = error as RealmError;
+
+    setAlertMessage({message: knownError.error, severity: "error"})
      throw error;
    }
  };

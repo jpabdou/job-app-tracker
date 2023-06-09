@@ -15,7 +15,7 @@ interface props {
 export default function ManualJobForm(props: props) {
 
 
-    const { user,token, setAlertMessage, setJobs, jobs } = useContext(UserContext);
+    const { user,token, setAlertMessage, setJobs, jobs, trial } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
@@ -178,6 +178,7 @@ export default function ManualJobForm(props: props) {
 
     return (
         <div className="w-full text-center">
+            {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only.</h1>}
             {jobId ? <a className={h2Setting + " underline"} href={manualJob.jobLink}>Click here to view original job posting or</a> : null}
             <h2 className={h2Setting}>{jobId ? "view or update job details below" : "Enter the job details below:"}</h2> <h3 className={h3Setting+ " " + requiredSetting}>Required Fields</h3>
             <form className={formSetting} onSubmit={onSubmitJob}>

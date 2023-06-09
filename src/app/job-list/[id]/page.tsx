@@ -7,7 +7,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { UserContext } from "../../../contexts/user.context";
 
 export default function EditJobForm( ) {
-  const {user, token, jobs} = useContext(UserContext)
+  const {user, token, jobs, trial} = useContext(UserContext)
   const defaultJob : Job | undefined = undefined
   const [editJob, setEditJob] = useState(defaultJob)
 
@@ -16,7 +16,7 @@ export default function EditJobForm( ) {
         method: "GET",
         headers: {Authentication: `Bearer ${token}`}
       };
-    const res = await fetch(`/api/jobs/read?id=${user_id}&jobid=${jobId}`, getReq);
+    const res = await fetch(`/api/jobs/read?id=${trial ? "6482c564b18df6bd4874cb5c" : user_id}&jobid=${jobId}`, getReq);
    const job = await res.json()
     return job.data;}
 

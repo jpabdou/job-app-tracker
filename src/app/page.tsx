@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 
 
 export default function Page() {
- const { user, getValidAccessToken, setJobs, setAlertMessage, token, fetchUser } = useContext(UserContext);
+ const { user, getValidAccessToken, setJobs, setAlertMessage, token, fetchUser, trial } = useContext(UserContext);
  const router = useRouter();
 
 async function getJobs(user_id:string) {
@@ -20,7 +20,7 @@ async function getJobs(user_id:string) {
             "Content-type": "application/json",
             "headers": {"Authentication": `Bearer ${token}`}
           };
-        let url : string = `/api/jobs/read?id=${user_id}`
+        let url : string = `/api/jobs/read?id=${trial ? "6482c564b18df6bd4874cb5c" : user?.id}`
         const res = await fetch(`${url}`, getReq);
         if (!(res.status === 200)) {
           setAlertMessage({message: "Failed to fetch data.", severity: "error"})
@@ -59,7 +59,7 @@ useEffect(() => {
   loadUser(); 
   if (user) {
     loadToken();
-    getJobs(user?.id)
+    // getJobs(user?.id)
   }
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);

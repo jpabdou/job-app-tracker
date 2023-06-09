@@ -13,7 +13,7 @@ interface props {
 
 export default function DeleteButton(props: props) {
     const router = useRouter();
-    const {token, user, setAlertMessage} = useContext(UserContext);
+    const {token, user, setAlertMessage, trial} = useContext(UserContext);
     const {jobId, buttonSetting} = props;
     const [opened, setOpened] = useState(false);
 

@@ -15,7 +15,7 @@ interface props {
 export default function JobRow(props: props) {
 
 
-    const { user,token, setAlertMessage,jobs, setJobs } = useContext(UserContext);
+    const { user,token, setAlertMessage,jobs, setJobs, trial } = useContext(UserContext);
     const router = useRouter();
 
     let { jobId, idx} = props;

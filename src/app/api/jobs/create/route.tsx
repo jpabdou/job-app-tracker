@@ -11,6 +11,8 @@ export async function POST(request: NextRequest) {
       let db_connect = client.db("jobsData");
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
+      if (user_id === "6482c564b18df6bd4874cb5c") return NextResponse.json({message: "Cannot use the trial user_id"})
+
       let myobj = {
        
         "company": body.company ? body.company : "No Company Added",

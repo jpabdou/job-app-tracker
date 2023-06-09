@@ -9,7 +9,7 @@ import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination 
 import AppRatePlot from "./AppRatePlot";
 
 export default function JobList() {
-    const { user, token, setAlertMessage, jobs, setJobs } = useContext(UserContext);
+    const { user, token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
     const router = useRouter();
 
 
@@ -90,7 +90,7 @@ export default function JobList() {
     useEffect(()=>{
       if (jobs.length === 0) {
         if (user){
-          getJobs(user?.id).then(result=>{
+          getJobs(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
             if (result.data.length === 0) {
               router.push("/job-entry")
               setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"})
@@ -137,7 +137,7 @@ export default function JobList() {
 
    useEffect(()=>{
     if (jobs.length > 0 && user) {
-      getData(user?.id).then(result=>{
+      getData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
         let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
         setPlotData(plotRes);
         let weeksRes: string[] = result.data.weeks
@@ -206,6 +206,7 @@ export default function JobList() {
     return(
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
+          {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only.</h1>}
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}

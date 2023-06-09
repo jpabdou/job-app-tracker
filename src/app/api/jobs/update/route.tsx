@@ -14,6 +14,7 @@ export async function PUT(request: NextRequest) {
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
       let jobId: string = searchParams.get("jobid") || "";
+      if (user_id === "6482c564b18df6bd4874cb5c") return NextResponse.json({message: "Cannot use the trial user_id"})
       let myquery = { "user_id": user_id,
         "_id": new ObjectId(jobId) };
       let newvalues = {
