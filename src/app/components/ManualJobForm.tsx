@@ -1,6 +1,5 @@
 "use client"
 import React, {useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { UserContext } from "../../contexts/user.context";
 import { useRouter } from "next/navigation";
 import { Job } from "../../../types/Jobs";
@@ -56,12 +55,10 @@ export default function ManualJobForm(props: props) {
           let job = await response.json();
           return job;
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                return error.message;
-              } else {
+
                 console.error('unexpected error: ', error);
                 return 'An unexpected error occurred';
-              }        
+                  
             }
       };
 
@@ -81,12 +78,10 @@ export default function ManualJobForm(props: props) {
           let result = await response.json();
           return result;
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                return error.message;
-              } else {
+
                 console.error('unexpected error: ', error);
                 return 'An unexpected error occurred';
-              }        
+                
             }
       };
 
@@ -134,7 +129,7 @@ export default function ManualJobForm(props: props) {
     const handleAppRouteInput = (event: React.ChangeEvent<HTMLSelectElement>) =>{
         let val: string = event.target.value;
         let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen"];
+        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Telescreen/Coding Test"];
 
         setManualJob({...manualJob, 
             appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 

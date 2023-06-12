@@ -64,7 +64,7 @@ export default function JobRowSmall(props: props) {
     const handleAppRouteInput = (event: SelectChangeEvent) =>{
         let val: string = event.target.value;
         let name: string = event.target.name;      
-        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Referral"];
+        const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Telescreen/Coding Test", "Referral"];
         setVisible(true);
         setJob({...job, 
             appStatus: val=== appStatusArr[0] ? appStatusArr[0] : appStatusArr[1], 
@@ -73,7 +73,7 @@ export default function JobRowSmall(props: props) {
     };
 
     const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor", "Other"];
-    const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
+    const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Telescreen/Coding Test", "Rejected", "Completed Telescreen/Coding Test; Awaiting Interview", "Completed Interview Round; Awaiting Next Round", "Completed Interview; Awaiting Hiring Decision", "Hired"];
 
 
 

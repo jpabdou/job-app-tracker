@@ -13,10 +13,10 @@ export async function PUT(request: NextRequest) {
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";
       if (user_id === "6482c564b18df6bd4874cb5c") return NextResponse.json({message: "Cannot use the trial user_id"})
-      let myquery = { "user_id": user_id,"jobDescription": {$exists: false}};
+      let myquery = { "user_id": user_id,"appStatus":"Applied; Awaiting Phone Screen" };
       let newvalues = {
         $set: {
-         "jobDescription": "No Description Added"
+         "appStatus": "Applied; Awaiting Telescreen/Coding Test"
         },
       };
       let updateResult = await db_connect

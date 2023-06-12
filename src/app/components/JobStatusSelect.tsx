@@ -10,11 +10,11 @@ interface props {
     const {handleFunc, selectVal, inputSetting} = props;
     const appStatusArr: Array<{"value": string, "text" : string, "optgroup": string}> = [
       {value: "Not Applied Yet", text: "Not Applied Yet", optgroup: "Not Applied Yet"}, 
-      {value: "Applied; Awaiting Phone Screen", text: "Awaiting Phone Screen", optgroup: "Applied"}, 
+      {value: "Applied; Awaiting Telescreen/Coding Test", text: "Awaiting Telescreen/Coding Test", optgroup: "Applied"}, 
       {value: "Applied; Rejected", text: "Rejected", optgroup: "Applied"}, 
       {value: "Applied; No Response", text: "No Response", optgroup: "Applied"}, 
-      {value: "Completed Phone Screen; Awaiting Interview", text: "Awaiting Interview", optgroup: "Completed Phone Screen"}, 
-      {value: "Completed Phone Screen; Rejected", text: "Rejected", optgroup: "Completed Phone Screen"}, 
+      {value: "Completed Telescreen/Coding Test; Awaiting Interview", text: "Awaiting Interview", optgroup: "Completed Telescreen/Coding Test"}, 
+      {value: "Completed Telescreen/Coding Test; Rejected", text: "Rejected", optgroup: "Completed Telescreen/Coding Test"}, 
       {value: "Completed Interview Round; Awaiting Next Round", text: "Awaiting Next Interview", optgroup: "Completed Interview Round"}, 
       {value: "Completed Interview Round; Rejected", text: "Rejected", optgroup: "Completed Interview Round"} , 
       {value: "Completed Interview Round; Awaiting Hiring Decision", text: "Awaiting Hiring Decision", optgroup: "Completed Interview Round"}, 

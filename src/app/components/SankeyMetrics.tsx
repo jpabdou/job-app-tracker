@@ -1,74 +1,229 @@
 "use client"
 import React, {useContext, useEffect,useState} from "react";
-import { UserContext } from "@/contexts/user.context";
-import { useRouter } from "next/navigation";
-import { Job, JobEntry, SankeyLink, SankeyNode } from "../../../types/Jobs";
+import dynamic from "next/dynamic";
+import Plotly from "plotly.js";
 
-import * as d3Sankey from "d3-sankey"
+interface props {
+  plotData: {followup: SankeyMetric[], noFollowup: SankeyMetric[]}
+}
 
-export default function SankeyMetrics() {
-    const { user, token, setAlertMessage, sankeyPlotData, setSankeyPlotData, jobs } = useContext(UserContext);
-    const router = useRouter();
+interface SankeyMetric {_id: string, count: number}
 
-    async function getData(user_id:string) {
-        try {
-            const getReq = {
-                "method": "GET",
-                "Content-type": "application/json",
-                "headers": {"Authentication": `Bearer ${token}`}
-              };
-            let url : string = `/api/jobs/getCounts?id=${user_id}`
-            const res = await fetch(`${url}`, getReq);
-            if (!(res.status === 200)) {
-              setAlertMessage({message: "Failed to fetch results.", severity: "error"})
-                router.push("/");
-              throw new Error('Failed to fetch results');
-              
-            }
-            return res.json()
-            
-        } catch (e) {
-            console.error(e)
-        }
-    
-      }
+export default function SankeyPlot(props : props) {
+    const {plotData} = props;
+    const [data, setData] = useState<{
+      source: number[],
+      target: number[],
+      value:  number[]
+    }>({source:[], target:[], value: []});
+    const Plot = dynamic(()=>import("react-plotly.js"), {ssr:false})
 
-      const appStageArr: Array<string> = ["Not Applied Yet", "Applied", "Completed Phone Screen","Completed Interview Round", "Hired"];
+    const labels: string[] =  [];
+    const labelMap: {[key: string]: number} = {};
+    const sankeyMap: IHashMap = {};
+    const colors : string[] = [];
+      const appStageArr: Array<string> = ["Applied; Awaiting Telescreen/Coding Test", "Completed Telescreen/Coding Test; Awaiting Interview","Completed Interview Round; Awaiting Hiring Decision", "Hired"];
 
-    //   const appStatusGroupArr: Array<{"value": string, "text" : string, "optgroup": string}> = [
-    //     {value: "Not Applied Yet", text: "Not Applied Yet", optgroup: "Not Applied Yet"}, 
-    //     {value: "Completed Phone Screen; Awaiting Interview", text: "Awaiting Interview", optgroup: "Completed Phone Screen"}, 
-    //     {value: "Completed Phone Screen; Rejected", text: "Rejected", optgroup: "Completed Phone Screen"}, 
-    //     {value: "Completed Interview Round; Awaiting Next Round", text: "Awaiting Next Interview", optgroup: "Completed Interview Round"}, 
-    //     {value: "Completed Interview Round; Rejected", text: "Rejected", optgroup: "Completed Interview Round"} , 
-    //     {value: "Completed Interview Round; Awaiting Hiring Decision", text: "Awaiting Hiring Decision", optgroup: "Completed Interview Round"}, 
-    //     {value: "Hired", text: "Hired", optgroup: "Hired"}];
+        const appStatusArr: Array<{"value": string, "text" : string, "optgroup": string}> = [
+          {value: "Applied; Awaiting Telescreen/Coding Test", text: "Awaiting Telescreen/Coding Test", optgroup: "Applied"}, 
+          {value: "Applied; Rejected", text: "Rejected", optgroup: "Applied"}, 
+          {value: "Applied; No Response", text: "No Response", optgroup: "Applied"}, 
+          {value: "Completed Telescreen/Coding Test; Awaiting Interview", text: "Awaiting Interview", optgroup: "Completed Telescreen/Coding Test"}, 
+          {value: "Completed Telescreen/Coding Test; Rejected", text: "Rejected", optgroup: "Completed Telescreen/Coding Test"}, 
+          {value: "Completed Interview Round; Awaiting Next Round", text: "Awaiting Next Interview", optgroup: "Completed Interview Round"}, 
+          {value: "Completed Interview Round; Rejected", text: "Rejected", optgroup: "Completed Interview Round"} , 
+          {value: "Completed Interview Round; Awaiting Hiring Decision", text: "Awaiting Hiring Decision", optgroup: "Completed Interview Round"}, 
+          {value: "Hired", text: "Hired", optgroup: "Hired"}];
+
       interface IHashMap {
-          [key: string]: boolean
+          [key: string]: string[]
        }
+
+       let followupValueMap: {
+        [key: string]: number
+     } = {}
+
+       for (let stage of appStatusArr) {
+        followupValueMap[stage.value] = 0
+        // "Hired" is the last stage and doesn't follow the stage.optgroup = previous stage and stage.text = current stage structure
+          if (stage.optgroup === "Hired") {
+            if (!(stage.optgroup in labelMap)) {
+              labelMap[stage.optgroup] = labels.length;
+              labels.push(stage.optgroup);
+              labels.push(stage.optgroup);
+              colors.push("green");
+              colors.push("green");
+            }
+            if (!("Completed Interview Round" in labelMap)) {
+              labelMap["Completed Interview Round"] = labels.length;
+              labels.push("Completed Interview Round");
+              colors.push("blue");
+              labels.push("Completed Interview Round");
+              colors.push("blue");
+            }
+          } else {
+              if (!(stage.optgroup in labelMap)) {
+                labelMap[stage.optgroup] = labels.length;
+                if (stage.optgroup === "Applied") {
+                  labels.push("Applied with followup")                  
+                  labels.push("Applied without followup")
+                } else {
+                labels.push(stage.optgroup);
+                labels.push(stage.optgroup);}
+                switch (stage.optgroup){
+                  case "Applied":
+                    colors.push("yellow");
+                    colors.push("yellow");
+                    break;
+                  case "Completed Telescreen/Coding Test":
+                    colors.push("orange");
+                    colors.push("orange");
+                    break;
+                  case "Completed Interview Round":
+                    colors.push("blue");
+                    colors.push("blue");
+                    break;
+                  default:
+                    break
+                }
+              }
+              labelMap[stage.text] = labels.length;
+              labels.push(stage.text);
+              labels.push(stage.text);
+                switch (stage.text){
+                  case "Awaiting Telescreen/Coding Test":
+                    colors.push("yellow");
+                    colors.push("yellow");
+                    break;
+                  case "Rejected":
+                    colors.push("red");
+                    colors.push("red");
+                    break;
+                  case "No Response":
+                    colors.push("gray");
+                    colors.push("gray");
+                    break;
+                  case "Awaiting Hiring Decision":
+                    colors.push("blue");
+                    colors.push("blue");
+                    break;
+                  case "Awaiting Interview":
+                    colors.push("orange");
+                    colors.push("orange");
+                    break;
+                  case "Awaiting Next Round":
+                    colors.push("blue");
+                    colors.push("blue");
+
+                  default:
+                    break
+                }
+  
+            }
+          }
        
+      const allLabels = labels.concat(labels)
+      const allColors = colors.concat(colors)
+      const noFollowupValueMap = {...followupValueMap}
+
       useEffect(()=>{
-        getData(user!.id).then(res=>{
-            let appFreqData = res.data.applicationFreq;
-            // let noFollowupData = res.data.noFollowup;
-            // let followupData = res.data.followup;
+        if (plotData.followup.length > 0){
+        let i: number = 0
 
-            // for (let entry of followupData) {
-            //     let processedStrings = entry._id.split(";");
-            //     if  (processedStrings[0] === "Hired") {
-            //         plotData.nodes.push({name: processedStrings[0]})
-            //         plotData.links.push({source: "Awaiting Hiring Decision", target: "Hired", value: entry.value})
+        for (let point of plotData.followup) {
+          let stageArr: string[] = point._id.split("; ");
+              
+              data.source.push(labelMap[stageArr[0]]);
+              data.target.push(labelMap[stageArr[1]]);
 
-            //     } else {
+                let i = 0;
+                while (appStageArr[i].split("; ")[0] !== stageArr[0]) {
+                  followupValueMap[appStageArr[i]] += point.count                
+                  i++
+                }
+                followupValueMap[point._id] += point.count
+            
+            }
+            for (let point of plotData.followup) {
+                  
+                  data.value.push(followupValueMap[point._id]);
+                }
+            for (let point of plotData.noFollowup) {
+              let stageArr: string[] = point._id.split("; ");
+                  
+                  data.source.push(labelMap[stageArr[0]]+1);
+                  data.target.push(labelMap[stageArr[1]]+1);
+    
+                    let i = 0;
+                    while (appStageArr[i].split("; ")[0] !== stageArr[0]) {
+                      noFollowupValueMap[appStageArr[i]] += point.count                
+                      i++
+                    }
+                    noFollowupValueMap[point._id] += point.count
+                
+                }
+                for (let point of plotData.noFollowup) {
+                      
+                      data.value.push(noFollowupValueMap[point._id]);
+                    }
+        }
+        setData({...data})}
+       , [plotData])
 
-            //     }
-            // }
 
-            let obj = {}
-            let stages = Object.keys(res.data)
-            let values = Object.values(res.data)
-        })   
-    },[])
+       let sankey = [{
+        type: "sankey",
+        name: "Application Status Sankey",
+        orientation: 'h' as const,
+        node: {
+          pad: 15,
+          thickness: 30,
+          line: {
+            color: "black",
+            width: 0.5
+          },
+         label: labels,
+         color: colors
+            },
+      
+        link: {
+          source: data.source,
+          target: data.target,
+          value:  data.value
+        }
+      }]
+      
+     
+      var sankeyLayout = {
+        title: "Application Status Sankey",
+        font: {
+          size: 10
+        }
+      }
+      
+      // Plotly.react('myDiv', sankey, layout)
+      
 
-    return(null)
+
+
+       const [hasMounted, setHasMounted] = useState(false);
+       useEffect(() => {
+         setHasMounted(true);
+       }, []);
+       if (!hasMounted) {
+         return null;
+       }
+
+    return(
+      <div id="myDiv">
+        {((plotData.followup.length + plotData.noFollowup.length) >0) ?	
+
+        <Plot
+        data={sankey}
+        layout={sankeyLayout}
+      /> : null
+      }
+      </div>
+
+    )
 }

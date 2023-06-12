@@ -197,7 +197,7 @@ export default function JobEntry() {
     //   const requiredArr:  Array<string> = ["company", "title", "jobLink", "location"];
     //   const inputArr: Array<string[]> = [["company","Company Name"],["title","Job Title"],["location","Job Location"],["jobLink","Job Link"],["dateApplied","Application Date"]];
     //   const applicationRouteArr: Array<string> = ["Not Applied Yet","Company Career Site", "Referral", "LinkedIn", "Email", "Indeed", "ZipRecruiter", "AngelList", "USAJobs", "Simply Hired", "GlassDoor"];
-    //   const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Phone Screen", "Rejected", "Completed Phone Screen; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
+    //   const appStatusArr: Array<string> = ["Not Applied Yet", "Applied; Awaiting Telescreen/Coding Test", "Rejected", "Completed Telescreen/Coding Test; Awaiting Technical Interview", "Completed Technical Interview Round; Awaiting Next Round", "Completed Technical Interview; Awaiting Hiring Decision", "Hired"];
 
     return (
         <div className="w-full text-center">

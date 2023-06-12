@@ -7,8 +7,10 @@ import JobRowSmall from "./JobRowSmall";
 import JobRow from "./JobRow";
 import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination } from "@mui/material";
 import AppRatePlot from "./AppRatePlot";
+import SankeyPlot from "./SankeyMetrics";
 
 export default function JobList() {
+  interface SankeyMetric {_id: string, count: number}
     const { user, token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
     const router = useRouter();
 
@@ -29,7 +31,7 @@ export default function JobList() {
     const [revealData, setRevealData] = useState(false);
     const [weeks, setWeeks] = useState<string[]>([])
     const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
-
+    const [sankeyData, setSankeyData] = useState<{followup: SankeyMetric[], noFollowup: SankeyMetric[]}>({followup: [], noFollowup: []})
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     
@@ -42,7 +44,7 @@ export default function JobList() {
       e.preventDefault();
       updateJobsNoResponse().then(res=>{
         jobs.forEach(ele=>{
-          if (ele.dateApplied < massUpdate && ele.appStatus === "Applied; Awaiting Phone Screen") {
+          if (ele.dateApplied < massUpdate && ele.appStatus === "Applied; Awaiting Telescreen/Coding Test") {
             ele.appStatus = "Applied; No Response"
           }
         })
@@ -141,7 +143,8 @@ export default function JobList() {
         let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
         setPlotData(plotRes);
         let weeksRes: string[] = result.data.weeks
-        setWeeks(weeksRes)
+        setWeeks(weeksRes);
+        setSankeyData({followup: result.data.followup, noFollowup: result.data.noFollowup})
       
       }
       )
@@ -206,13 +209,14 @@ export default function JobList() {
     return(
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
-          {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only.</h1>}
+          {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only. The App Frequency plot does not reflect user changes as well.</h1>}
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
+          {/* {revealData && <SankeyPlot plotData={sankeyData} />} */}
           <form className="flex flex-row flex-wrap align-evenly justify-evenly" onSubmit={submitUpdate}>
             <input name="dateFilter" className="mx-2" value={massUpdate} onChange={handleUpdateChange} type="date" />
-            <button className="underline font-bold mx-2">{`Set all Awaiting Phone Screen posts before ${massUpdate} as No Response`}</button>
+            <button className="underline font-bold mx-2">{`Set all Awaiting Telescreen/Coding Test posts before ${massUpdate} as No Response`}</button>
           </form>
 
           </div>

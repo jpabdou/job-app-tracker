@@ -13,9 +13,6 @@ export default function AppRatePlot(props : props) {
     const Plot = dynamic(()=>import("react-plotly.js"), {ssr:false})
 
 
-      const appStageArr: Array<string> = ["Not Applied Yet", "Applied", "Completed Phone Screen","Completed Interview Round", "Hired"];
-
-
       interface IHashMap {
           [key: string]: boolean
        }
