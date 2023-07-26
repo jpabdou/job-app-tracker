@@ -38,9 +38,10 @@ export async function GET(request: NextRequest) {
 
       }
     } catch (e) {
-        console.error(e)
+        console.error(e);
+        return NextResponse.json({ message: e, success: false });
       }
     } else{
-        return NextResponse.json({message: "Method Not Allowed"})
+        return NextResponse.json({message: "Method Not Allowed"});
     }
     }

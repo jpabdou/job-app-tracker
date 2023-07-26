@@ -63,12 +63,10 @@ export default function SankeyPlot(props : props) {
         for (let key in plotData) {
           let previousMap : IHashMap = {}
           let section : SankeyMetric[] = plotData[key]
-          let j = 0;
           for (let point of section) {
             data.source.push(key === "followup" ? labelMap[point["source"]] : (labelMap[point["source"]])+1 )
             data.target.push(key === "followup" ? labelMap[point["target"]] : (labelMap[point["target"]])+1 )
             previousMap[point["_id"]] = data.source.length-1 
-            // previousMap[point["target"]] = key === "followup" ? labelMap[point["target"]] : labelMap[point["target"]]+1 
             data.value.push(point.count)
             let i: number = 0;
             while (point._id.split("; ")[0] !== appStageArr[i].split("; ")[0] ) {
@@ -83,9 +81,7 @@ export default function SankeyPlot(props : props) {
               }
               i++
             }
-            console.log(point, data["source"][j], data.target[j], data.value[j])
 
-            j++
           }
         }
         }
