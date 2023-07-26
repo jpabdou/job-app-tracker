@@ -27,7 +27,6 @@ export async function PUT(request: NextRequest) {
          return NextResponse.json({data: updateResult});
     } catch (e) {
         console.error(e);
-        return NextResponse.json({ message: e, success: false });
 
       }
     } else{

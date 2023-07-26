@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({data: createResult});
         } catch (e) {
             console.error(e);
-            return NextResponse.json({ message: e, success: false });
           }    
         } else{
             let message ={message: "Method Not Allowed"};

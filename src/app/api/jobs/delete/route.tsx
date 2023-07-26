@@ -20,7 +20,6 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({data: deleteResult});
     } catch (e) {
         console.error(e)
-        return NextResponse.json({ message: e, success: false });
       }
     } else{
         NextResponse.json({message: "Method Not Allowed"})
