@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 
 import clientPromise from "../../../../../lib/mongodb";
+export const revalidate = 0;
 
 // not used in app, only for fixing mistakes due to "createMany" request
 export async function PUT(request: NextRequest) {

@@ -3,6 +3,7 @@ import { NextResponse, NextRequest } from 'next/server';
 
 const ObjectId = mongoDB.ObjectId;
 import clientPromise from "../../../../../lib/mongodb";
+export const revalidate = 0;
 
 export async function PUT(request: NextRequest) {
     if (request.method === 'PUT') {

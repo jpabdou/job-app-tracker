@@ -4,6 +4,7 @@ import * as mongoDB from "mongodb";
 const ObjectId = mongoDB.ObjectId;
 import clientPromise from "../../../../../lib/mongodb";
 
+export const revalidate = 0;
 
 export async function DELETE(request: NextRequest) {
     if (request.method === 'DELETE') {

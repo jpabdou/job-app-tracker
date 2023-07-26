@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 
 import clientPromise from "../../../../../lib/mongodb";
+export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
     if (request.method === 'POST') {
