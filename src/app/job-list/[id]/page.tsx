@@ -20,8 +20,7 @@ export default function EditJobForm( ) {
    const job = await res.json()
     return job.data;}
 
-    const jobId = useParams().id;
-    // const {editJob} = await getJob(user?.id!, jobId);
+    const jobId: string = useParams().id;
     useEffect(()=>{
      getJob(user?.id!, jobId).then(data=>{
 
