@@ -52,11 +52,58 @@ export async function GET(request: NextRequest) {
       let followupResult = await db_connect
         .collection("jobsData")
         .aggregate(pipelineFollowup)
+        .map((statusCount)=>{
+          let arr = statusCount._id.split("; ");
+            statusCount["source"] = arr[0]
+
+          if (arr[1] === "Rejected") {
+            switch (arr[0]) {
+              case "Applied":
+                statusCount["target"] = "Rejected at App";
+                break;
+              case "Completed Telescreen/Coding Test":
+                statusCount["target"] = "Rejected at Screen";
+                break;
+              case "Completed Interview Round":
+                statusCount["target"] = "Rejected at Interview";
+                break;
+            }
+
+          } else {
+            statusCount["target"] = arr[1]
+          }
+          
+          return statusCount
+        })
         .toArray();
       
         let nonFollowupResult = await db_connect
         .collection("jobsData")
         .aggregate(pipelineNonFollowup)
+        .map((statusCount)=>{
+          let arr = statusCount._id.split("; ");
+
+            statusCount["source"] = arr[0]
+
+          if (arr[1] === "Rejected") {
+            switch (arr[0]) {
+              case "Applied":
+                statusCount["target"] = "Rejected at App";
+                break;
+              case "Completed Telescreen/Coding Test":
+                statusCount["target"] = "Rejected at Screen";
+                break;
+              case "Completed Interview Round":
+                statusCount["target"] = "Rejected at Interview";
+                break;
+            }
+
+          } else {
+            statusCount["target"] = arr[1]
+          }
+          
+          return statusCount
+        })
         .toArray();
 
         let applicationFreqResult = await db_connect

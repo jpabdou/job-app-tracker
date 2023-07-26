@@ -10,7 +10,7 @@ interface props {
 export default function AppRatePlot(props : props) {
     const {weeks, plotData} = props;
     const [data, setData] = useState<{x: string[], y: number[]}>({x:[], y:[]});
-    const Plot = dynamic(()=>import("react-plotly.js"), {ssr:false})
+    const Plot = dynamic(()=>import("react-plotly.js"), {ssr:false,   loading: () => <p>Loading...</p>})
 
 
       interface IHashMap {

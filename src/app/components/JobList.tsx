@@ -10,7 +10,7 @@ import AppRatePlot from "./AppRatePlot";
 import SankeyPlot from "./SankeyMetrics";
 
 export default function JobList() {
-  interface SankeyMetric {_id: string, count: number}
+  interface SankeyMetric {_id: string, count: number, source: string, target: string}
     const { user, token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
     const router = useRouter();
 
@@ -213,7 +213,7 @@ export default function JobList() {
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
-          {/* {revealData && <SankeyPlot plotData={sankeyData} />} */}
+          {revealData && <SankeyPlot plotData={sankeyData} />}
           <form className="flex flex-row flex-wrap align-evenly justify-evenly" onSubmit={submitUpdate}>
             <input name="dateFilter" className="mx-2" value={massUpdate} onChange={handleUpdateChange} type="date" />
             <button className="underline font-bold mx-2">{`Set all Awaiting Telescreen/Coding Test posts before ${massUpdate} as No Response`}</button>

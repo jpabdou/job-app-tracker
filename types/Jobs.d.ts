@@ -9,4 +9,4 @@ export interface SankeyLink {
 export interface SankeyNode {
     name: string}
 
-export interface SankeyData {nodes: Array<SankeyNode>, links: Array<SankeyLink>}
+export interface SankeyPlotData {nodes: Array<SankeyNode>, links: Array<SankeyLink>}
