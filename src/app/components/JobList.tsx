@@ -210,7 +210,7 @@ export default function JobList() {
       <>
         <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only. The App Frequency plot does not reflect user changes as well.</h1>}
-          <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display App Frequency</button>
+          <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display Job Progress Plots</button>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
           {revealData && <SankeyPlot plotData={sankeyData} />}

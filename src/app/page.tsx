@@ -92,7 +92,12 @@ if (!hasMounted) {
         <li>• Clicking the &ldquo;Sign-up&rdquo; link in the navigation bar above or in the links below to sign up with an email and password. You will need to confirm your credentials by email and then log-in.</li>
         <li>• Clicking the &ldquo;Log-in&rdquo; link in the navigation bar above or below and click &ldquo;Sign in with Trial&rdquo; to see how app works.</li>
       </ul>
-      After you have logged in, you can navigate to the &ldquo;Job Entry&rdquo; link above to enter your applications and details about your process for each application. After you enter your applications, you can navigate to the &ldquo;Job List&rdquo; page where you can view your applications and update each one as they progress or click on the job title link to view and update the job details.
+      <br></br>
+      After you have logged in, you can:
+      <ul>
+        <li>• Navigate to the &ldquo;Job Entry&rdquo; link above to enter your job applications and details about your process for each application</li>
+        <li>• Navigate to the &ldquo;Job List&rdquo; link above to view your applications and update each one as they progress on the job list table or click on the job title link to view and update the job details. You can also click the &ldquo;Display Job Progress Plots&rdquo; button to view a scatter plot and a Sankey plot to show your job application progress.</li>
+      </ul>
       </h2>
       
       </div>
