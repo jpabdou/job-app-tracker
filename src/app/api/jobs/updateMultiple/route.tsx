@@ -3,13 +3,14 @@ import { NextResponse, NextRequest } from 'next/server';
 import clientPromise from "../../../../../lib/mongodb";
 export const revalidate = 0;
 
-// not used in app, only for fixing mistakes due to "createMany" request
+// not used in app, for use with API client and only for correcting job entries en masse, usually changing wording for application statuses
 export async function PUT(request: NextRequest) {
     if (request.method === 'PUT') {
 
     try {
-        // let body = await request.json() 
-        const client = await clientPromise;
+      // initializes MongoClient connection to URI and opens connection with "jobsData" database
+      const client = await clientPromise;
+      // initializes MongoClient connection to URI and opens connection with "jobsData" database
       let db_connect = client.db("jobsData");
       const { searchParams } = new URL(request.url!);
       let user_id: string  = searchParams.get("id") || "";

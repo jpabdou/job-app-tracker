@@ -25,7 +25,8 @@ export default function AppRatePlot(props : props) {
         let i: number = 0
         for (let point of plotData!) {
           if (point._id !== weeks![i]){
-                while (point._id !== weeks![i] && i<weeks!.length) {
+            // if a week is not found, add missing week to data.x array and push 0 to data.y array by default
+            while (point._id !== weeks![i] && i<weeks!.length) {
               data.x.push(weeks![i]);
               data.y.push(0);
               i++

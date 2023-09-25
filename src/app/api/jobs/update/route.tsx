@@ -9,15 +9,19 @@ export async function PUT(request: NextRequest) {
     if (request.method === 'PUT') {
 
     try {
-        let body = await request.json() 
-        const client = await clientPromise;
+      // await fulfillment value of Promise for reading of request body and parsing as a json
+      let body = await request.json(); 
+      // initializes MongoClient connection to URI and opens connection with "jobsData" database
+      const client = await clientPromise;
       let db_connect = client.db("jobsData");
       const { searchParams } = new URL(request.url!);
+      // finds user's ID and job ID to read the job data through the request url's search params
       let user_id: string  = searchParams.get("id") || "";
       let jobId: string = searchParams.get("jobid") || "";
       if (user_id === "6482c564b18df6bd4874cb5c") return NextResponse.json({message: "Cannot use the trial user_id"})
       let myquery = { "user_id": user_id,
         "_id": new ObjectId(jobId) };
+      // set newvalues values to body values or to default values if empty
       let newvalues = {
         $set: {
          "company": body.company ? body.company : "No Company Added",
@@ -32,6 +36,8 @@ export async function PUT(request: NextRequest) {
          "emailFollowup": body.emailFollowup ? body.emailFollowup : "no" 
         },
       };
+
+      // Connects to "jobsData" collection, querys job entry according to query by job ID, updates job with newvalues object, and returns result in response
       let updateResult = await db_connect
         .collection("jobsData")
         .updateOne(myquery, newvalues);
