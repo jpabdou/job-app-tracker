@@ -64,13 +64,13 @@ export async function GET(request: NextRequest) {
       // The following is the querying for the counts of applications for each application status to be used in the Sankey plot
       // Two sequence of operations for the application status data for applications sent with email followup and without
       const pipelineFollowup=[
-        { $match: { emailFollowup: "yes", "user_id": user_id }, "appStatus": {$ne: "Not Applied Yet"} },  // Search for job applications matching user_id with email followups sent, removing unsent job applications 
+        { $match: { "emailFollowup": "yes", "user_id": user_id , "appStatus": {$ne: "Not Applied Yet"}} },  // Search for job applications matching user_id with email followups sent, removing unsent job applications 
         { $group: { _id: "$appStatus", count: { $sum: 1 } } },       // Group results by appStatus/application status ("Applied; Waiting for Response", "Applied; Rejected", etc.) and count each application in a group.
         {$sort: { "appStatus": 1}}      // Sort results by appStatus/application status in alphabetical order.
       ]
 
       const pipelineNonFollowup = [
-        { $match: { emailFollowup: "no", "user_id": user_id }, "appStatus": {$ne: "Not Applied Yet"} },  // Search for job applications matching user_id without email followups sent, removing unsent job applications 
+        { $match: { "emailFollowup": "no", "user_id": user_id , "appStatus": {$ne: "Not Applied Yet"}} },  // Search for job applications matching user_id without email followups sent, removing unsent job applications 
         { $group: { _id: "$appStatus", count: { $sum: 1 } } },       // Group results by appStatus/application status ("Applied; Waiting for Response", "Applied; Rejected", etc.) and count each application in a group.
         {$sort: { "appStatus": 1}}      // Sort results by appStatus/application status in alphabetical order.
       ]
