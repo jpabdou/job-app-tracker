@@ -119,7 +119,7 @@ export default function JobList() {
             "method": "GET",
             "Content-type": "application/json"
           };
-        let url : string = `/api/jobs/getScatterCounts?id=${user_id}`
+        let url : string = `/api/jobsPlot/getScatterCounts?id=${user_id}`
         const res = await fetch(`${url}`, getReq);
         if (!(res.status === 200)) {
           setAlertMessage({message: "Failed to fetch results.", severity: "error"});
@@ -141,7 +141,7 @@ export default function JobList() {
             "method": "GET",
             "Content-type": "application/json"
           };
-        let url : string = `/api/jobs/getSankeyCounts?id=${user_id}`
+        let url : string = `/api/jobsPlot/getSankeyCounts?id=${user_id}`
         const res = await fetch(`${url}`, getReq);
         if (!(res.status === 200)) {
           setAlertMessage({message: "Failed to fetch results.", severity: "error"})
