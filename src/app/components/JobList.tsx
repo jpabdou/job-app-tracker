@@ -2,7 +2,7 @@
 import React, {useContext, useEffect,useState} from "react";
 import { UserContext } from "@/contexts/user.context";
 import { useRouter } from "next/navigation";
-import { Job, JobEntry } from "../../../types/Jobs";
+import { Job, JobEntry, SankeyInputs } from "../../../types/Jobs";
 import JobRowSmall from "./JobRowSmall";
 import JobRow from "./JobRow";
 import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination } from "@mui/material";
@@ -10,7 +10,6 @@ import AppRatePlot from "./AppRatePlot";
 import SankeyPlot from "./SankeyMetrics";
 
 export default function JobList() {
-  interface SankeyMetric {_id: string, count: number, source: string, target: string}
     const { user, token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
     const router = useRouter();
 
@@ -29,9 +28,11 @@ export default function JobList() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [revealData, setRevealData] = useState(false);
-    const [weeks, setWeeks] = useState<string[]>([])
-    const [plotData, setPlotData] = useState<{_id: string, count: number}[]>([])
-    const [sankeyData, setSankeyData] = useState<{followup: SankeyMetric[], noFollowup: SankeyMetric[]}>({followup: [], noFollowup: []})
+
+    const [scatterData, setScatterData] = useState<{x: string[], y: number[]}>({x: [], y: []});
+
+    let initialData : SankeyInputs  = {source:[], target:[], value: []};
+    const [sankeyData, setSankeyData] = useState<{data: SankeyInputs, colors: string[], labels: string[]}>({data: {...initialData}, colors: [], labels: []})
 
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     
@@ -81,13 +82,13 @@ export default function JobList() {
             throw new Error('Failed to fetch data');
             
           }
-          return res.json()
+          return res.json();
           
       } catch (e) {
-          console.error(e)
-      }
+          console.error(e);
+      };
   
-    }
+    };
 
     useEffect(()=>{
       if (jobs.length === 0) {
@@ -105,21 +106,42 @@ export default function JobList() {
           }
           )
         } else {
-            router.push("/")
-            setAlertMessage({message:"Not Logged In.", severity: "error"})            
+            router.push("/");
+            setAlertMessage({message:"Not Logged In.", severity: "error"});        
         }
     }
-  },[])
+  },[]);
 
 
-  async function getData(user_id:string) {
+  async function getScatterData(user_id:string) {
     try {
         const getReq = {
             "method": "GET",
-            "Content-type": "application/json",
-            "headers": {"Authentication": `Bearer ${token}`}
+            "Content-type": "application/json"
           };
-        let url : string = `/api/jobs/getCounts?id=${user_id}`
+        let url : string = `/api/jobs/getScatterCounts?id=${user_id}`
+        const res = await fetch(`${url}`, getReq);
+        if (!(res.status === 200)) {
+          setAlertMessage({message: "Failed to fetch results.", severity: "error"});
+            router.push("/");
+          throw new Error('Failed to fetch results');
+          
+        }
+        return res.json();
+        
+    } catch (e) {
+        console.error(e);
+    };
+
+  };
+
+  async function getSankeyData(user_id:string) {
+    try {
+        const getReq = {
+            "method": "GET",
+            "Content-type": "application/json"
+          };
+        let url : string = `/api/jobs/getSankeyCounts?id=${user_id}`
         const res = await fetch(`${url}`, getReq);
         if (!(res.status === 200)) {
           setAlertMessage({message: "Failed to fetch results.", severity: "error"})
@@ -130,22 +152,22 @@ export default function JobList() {
         return res.json()
         
     } catch (e) {
-        console.error(e)
-    }
+        console.error(e);
+    };
 
-  }
+  };
 
 
 
    useEffect(()=>{
     if (jobs.length > 0 && user) {
-      getData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
-        let plotRes:  {_id: string, count: number}[] = result.data.applicationFreq;
-        setPlotData(plotRes);
-        let weeksRes: string[] = result.data.weeks
-        setWeeks(weeksRes);
-        setSankeyData({followup: result.data.followup, noFollowup: result.data.noFollowup})
-      
+      getScatterData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
+        setScatterData(result.data)     
+      }
+      )
+      getSankeyData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
+        console.log(result.data)
+        setSankeyData(result.data)     
       }
       )
     }
@@ -212,8 +234,8 @@ export default function JobList() {
           {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only. The App Frequency plot does not reflect user changes as well.</h1>}
           <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display Job Progress Plots</button>
           <div className="my-2 self-center">
-          {revealData && <AppRatePlot weeks={weeks} plotData={plotData} />}
-          {revealData && <SankeyPlot plotData={sankeyData} />}
+          {revealData && <AppRatePlot data={scatterData} />}
+          {revealData && <SankeyPlot {...sankeyData} />}
           <form className="flex flex-row flex-wrap align-evenly justify-evenly" onSubmit={submitUpdate}>
             <input name="dateFilter" className="mx-2" value={massUpdate} onChange={handleUpdateChange} type="date" />
             <button className="underline font-bold mx-2">{`Set all Awaiting Telescreen/Coding Test posts before ${massUpdate} as No Response`}</button>

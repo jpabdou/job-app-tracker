@@ -10,3 +10,11 @@ export interface SankeyNode {
     name: string}
 
 export interface SankeyPlotData {nodes: Array<SankeyNode>, links: Array<SankeyLink>}
+
+export interface SankeyInputs {
+  source: number[],
+  target: number[],
+  value:  number[]
+};
+
+export interface SankeyMetric {_id: string, count: number, source: string, target: string};
