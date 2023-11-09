@@ -5,10 +5,11 @@ import { InputLabel, FormControl, NativeSelect, Select, SelectChangeEvent } from
 interface props {
     handleFunc: (event: SelectChangeEvent) => void,
     selectVal: string,
+    jobNumber: string
   }
 
   export default function JobStatusSelectMaterial(props: props) {
-    const {handleFunc, selectVal} = props;
+    const {handleFunc, selectVal, jobNumber} = props;
     const appStatusArr: Array<{"value": string, "text" : string, "optgroup": string}> = [
       {value: "Not Applied Yet", text: "Not Applied Yet", optgroup: "Not Applied Yet"}, 
       {value: "Applied; Awaiting Telescreen/Coding Test", text: "Awaiting Telescreen/Coding Test", optgroup: "Applied"}, 
@@ -38,7 +39,7 @@ interface props {
     const renderOptions = (options: {"value": string, "text" : string}[]) => {
       return options.map(option => {
         return (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} id={`${jobNumber}_${option.value}`} value={option.value}>
             {option.text}
           </option>
         );
@@ -46,12 +47,12 @@ interface props {
     };
 
     return(
-      <FormControl fullWidth>
-        <InputLabel htmlFor="appStatus">Enter the Application Status:</InputLabel >
-          <Select native variant='filled' inputProps={{name: 'appStatus', id: 'appStatus'}} value={selectVal} onChange={handleFunc} style={{  textAlign: 'center', width: "15rem"}}>
+      <FormControl fullWidth id={`${jobNumber}_app_status_form`}>
+        <InputLabel htmlFor={`${jobNumber}_app_status`}>Enter the Application Status:</InputLabel >
+          <Select native variant='filled' inputProps={{name: 'appStatus', id: `${jobNumber}_app_status`}} value={selectVal} onChange={handleFunc} style={{  textAlign: 'center', width: "15rem"}}>
                     {Object.keys(groupedOptions).map((group, index) => {
                         return (
-                        <optgroup key={index} label={group}>
+                        <optgroup id={`${jobNumber}_${group}`} key={index} label={group}>
                             {renderOptions(groupedOptions[group])}
                         </optgroup>
                         );

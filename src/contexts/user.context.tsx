@@ -23,6 +23,8 @@ interface Values{
   setTrial: (trial: boolean) => void,
   jobs: Job[],
   setJobs: (jobs: Job[]) => void,
+  editJobNumber: number | null,
+  setEditJobNumber: (editJobNumber: number|null) => void,
   sankeyPlotData: {followup: SankeyPlotData, noFollowup: SankeyPlotData},
   setSankeyPlotData: (sankeyPlotData: {followup: SankeyPlotData, noFollowup: SankeyPlotData}) => void,
   alertMessage: alertType,
@@ -63,6 +65,7 @@ export const UserProvider: FC<Props>= ({ children }) => {
  const [token, setToken] = useState<string | null>(null);
  const [trial, setTrial] = useState<boolean>(false);
  const [jobs, setJobs] = useState<Job[]>([]);
+ const [editJobNumber, setEditJobNumber] = useState<number | null>(null);
  const [alertMessage, setAlertMessage] = useState({message: "", severity: ""})
 const [sankeyPlotData, setSankeyPlotData] = useState<{followup: SankeyPlotData, noFollowup: SankeyPlotData}>({followup: {} as SankeyPlotData, noFollowup: {}  as SankeyPlotData})
 
@@ -214,6 +217,8 @@ const trialLogOut = () =>{
     setTrial,
     jobs,
     setJobs,
+    editJobNumber,
+    setEditJobNumber,
     sankeyPlotData,
     setSankeyPlotData,
     alertMessage,

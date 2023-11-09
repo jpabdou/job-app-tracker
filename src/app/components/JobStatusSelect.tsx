@@ -3,7 +3,7 @@ import React from "react";
 interface props {
     handleFunc: (event: React.ChangeEvent<HTMLSelectElement>) => void,
     selectVal: string,
-    inputSetting: string
+    inputSetting: string,
   }
 
   export default function JobStatusSelect(props: props) {

@@ -9,18 +9,18 @@ import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
-    idx: number;
+    jobNumber: number;
   }
 
 export default function JobRow(props: props) {
 
 
-    const { user,token, setAlertMessage,jobs, setJobs, trial } = useContext(UserContext);
+    const { user,token, setAlertMessage,jobs, setJobs, setEditJobNumber } = useContext(UserContext);
     const router = useRouter();
 
-    let { jobId, idx} = props;
+    let { jobId, jobNumber} = props;
     let initialJobEntryInput :  JobEntry ={company: "", title: "", jobNumber: jobs.length , dateApplied: "", applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", id: "", _id:""};
-    initialJobEntryInput = jobs[idx];
+    initialJobEntryInput = jobs[jobNumber];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
@@ -40,7 +40,7 @@ export default function JobRow(props: props) {
           let job = await response.json();
           return job;
         } catch (error) {
-                      console.error('unexpected error: ', error);
+                console.error('unexpected error: ', error);
                 return 'An unexpected error occurred';
                     
             }
@@ -68,25 +68,26 @@ export default function JobRow(props: props) {
     useEffect(()=>{
         if (!user) {
             setAlertMessage({message:"Not Logged In", severity: "error"});
-            router.push("/job-list");
+            router.push("/login");
 
         }
     },[])
 
     return (
             <TableRow
-            key={`job ${idx}`}
+            key={`job ${jobNumber}`}
             tabIndex={-1}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link prefetch={false}className="underline text-xl" href={`/job-list/${jobId}`}>{job.title} &#8211; {job.company}</Link></TableCell>
-            <TableCell align="center" sx={{fontSize: 18}}>{jobs[idx].dateApplied}</TableCell>
+            <TableCell scope="row"><button className="underline text-xl cursor-pointer" onClick={()=>{setEditJobNumber(job.jobNumber)}}>{job.title} &#8211; {job.company}</button></TableCell>
+            <TableCell align="center" sx={{fontSize: 18}}>{jobs[jobNumber].dateApplied}</TableCell>
             <TableCell align="center">
-                <FormControl>
+                <FormControl id={`${jobId}_appRoute_form`}>
                     <InputLabel id="applicationRoute">Application Method/Source</InputLabel>
 
                     <Select
                         name="applicationRoute"
+                        id={`${jobId}_app_route`}
                         value={job.applicationRoute}
                         label="Application Method/Source"
                         labelId="applicationRoute"
@@ -101,9 +102,10 @@ export default function JobRow(props: props) {
                 </FormControl>   
             </TableCell>
             <TableCell align="center"> 
-                <FormControl>
+                <FormControl id={`${jobId}_email_followup_form`}>
                     <InputLabel id="emailFollowup">Follow-up email sent?</InputLabel>
                     <Select
+                    id={`${jobId}_email_followup`}
                     name="emailFollowup"
                     value={job.emailFollowup}
                     label="Follow-up email sent?"
@@ -118,8 +120,9 @@ export default function JobRow(props: props) {
                 </FormControl>  
             </TableCell>            
             <TableCell align="center">
-                <FormControl>
-                        <TextField     
+                <FormControl id={`${jobId}_outreach_form`}>
+                        <TextField    
+                        id={`${jobId}_outreach`}
                         label="Name of outreach contact"
                         name="outreachContact"
                         value={job.outreachContact}
@@ -130,13 +133,13 @@ export default function JobRow(props: props) {
                 </FormControl>
             </TableCell>
             <TableCell align="center">
-                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={job.appStatus} />
+                    <JobStatusSelectMaterial jobNumber={jobId} handleFunc={handleSelectInput} selectVal={job.appStatus} />
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{
-                                let target: Job = jobs[idx];
+                                let target: Job = jobs[jobNumber];
                                 const {applicationRoute, outreachContact, appStatus, emailFollowup} = job
-                               jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
+                               jobs.splice(jobNumber, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
                                setJobs([...jobs]);
                                updateJob(job, jobId!).then(res=>{
                                 setVisible(false);               

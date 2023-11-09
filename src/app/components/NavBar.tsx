@@ -19,7 +19,7 @@ export default function NavBar(){
             <div>
                 <nav className='flex flex-row flex-nowrap justify-evenly align-middle text-2xl underline my-2'>
                 <Link href="/">Home</Link>
-                <Link href="/job-entry">Job Entry</Link>
+                {/* <Link href="/job-entry">Job Entry</Link> */}
                 <Link href="/job-list">Job List</Link>
                 <SignUpLink />
                 <LogInLink />

@@ -9,18 +9,18 @@ import JobStatusSelectMaterial from "./JobStatusSelectMaterial";
 
 interface props {
     jobId: string,
-    idx: number;
+    jobNumber: number;
   }
 
 export default function JobRowSmall(props: props) {
 
 
-    const { user,token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
+    const { user,token, setAlertMessage, jobs, setJobs, setEditJobNumber } = useContext(UserContext);
     const router = useRouter();
 
-    let {jobId, idx} = props;
+    let {jobId, jobNumber} = props;
     let initialJobEntryInput :  JobEntry ={company: "", title: "", jobNumber: jobs.length, applicationRoute: "Not Applied Yet", outreachContact: "", dateApplied: "", emailFollowup: "no", appStatus: "Not Applied Yet", user_id: "", id:"", _id: ""};
-    initialJobEntryInput = jobs[idx];
+    initialJobEntryInput = jobs[jobNumber];
     
     const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
 
@@ -90,22 +90,22 @@ export default function JobRowSmall(props: props) {
     return (
             <TableBody>
             <TableRow
-            key={`job ${idx+1}`}
+            key={`job ${jobNumber+1}`}
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-            <TableCell scope="row"><Link prefetch={false} className="underline text-xl" href={`/job-list/${jobId}`}>{job.title} - {job.company}</Link></TableCell>
-            <TableCell align="center">{jobs[idx].dateApplied}</TableCell>         
+            <TableCell scope="row"><button className="underline text-xl cursor-pointer" onClick={()=>{setEditJobNumber(job.jobNumber)}}>{job.title} &#8211; {job.company}</button></TableCell>
+            <TableCell align="center">{jobs[jobNumber].dateApplied}</TableCell>         
             <TableCell align="center">
                 <FormControl>
-                    <JobStatusSelectMaterial handleFunc={handleSelectInput} selectVal={job.appStatus} />
+                    <JobStatusSelectMaterial jobNumber={jobId} handleFunc={handleSelectInput} selectVal={job.appStatus} />
 
                 </FormControl>
             </TableCell>
             <TableCell align="center">
                 {visible? <button className={buttonSetting} onClick={()=>{
-                                let target: Job = jobs[idx];
+                                let target: Job = jobs[jobNumber];
                                 const {applicationRoute, outreachContact, appStatus, emailFollowup} = job
-                               jobs.splice(idx, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
+                               jobs.splice(jobNumber, 1, {...target, applicationRoute, outreachContact, emailFollowup, appStatus});
                                setJobs([...jobs]);
                                updateJob(job, jobId!).then(res=>{
                                 setVisible(false);               

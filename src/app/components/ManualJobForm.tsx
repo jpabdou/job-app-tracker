@@ -6,22 +6,21 @@ import { Job } from "../../../types/Jobs";
 import DeleteButton from "./DeleteButton";
 import JobStatusSelect from "./JobStatusSelect";
 
-interface props {
-    editJob: Job | undefined,
-    jobId: string | undefined
-  }
 
-export default function ManualJobForm(props: props) {
+export default function ManualJobForm() {
 
 
-    const { user,token, setAlertMessage, setJobs, jobs, trial } = useContext(UserContext);
+    const { user,token, setAlertMessage, setJobs, jobs, trial, setEditJobNumber, editJobNumber } = useContext(UserContext);
     const currentDate = new Date().toJSON().slice(0,10);
     const router = useRouter();
 
-    let {editJob, jobId} = props;
     let initialManualJobInput :  Job ={company: "", title: "", jobLink: "", jobNumber: jobs.length, jobDescription: "", location: "", dateApplied: currentDate, applicationRoute: "Not Applied Yet", outreachContact: "", emailFollowup: "no", appStatus: "Not Applied Yet"};
-    if (jobId)  {
-        initialManualJobInput = editJob!;
+    let initialId = "";
+    let jobInput : Job = {...initialManualJobInput}
+   
+    if (typeof editJobNumber === "number")  {
+        jobInput = jobs[editJobNumber];
+        initialId= jobs[editJobNumber].id!
     };
 
     const h2Setting = "text-2xl text-center";
@@ -33,9 +32,10 @@ export default function ManualJobForm(props: props) {
     const requiredSetting = "after:content-['*'] after:ml-0.5 after:text-red-500";
     const highlightRequiredSetting = "bg-yellow-400";
 
-    const [manualJob, setManualJob] = useState(initialManualJobInput);
+    const [manualJob, setManualJob] = useState(jobInput);
     const [manualDisabled, setManualDisabled] = useState(true);
     const [highlightOn, setHighlightOn] = useState(false);
+    const [jobId, setJobId] = useState(initialId)
 
     const updateJob = async (job: Job, jobId: string) => {
         let {jobDescription} = job;
@@ -91,13 +91,13 @@ export default function ManualJobForm(props: props) {
         if (manualDisabled) {
             setHighlightOn(true)
         } else {
-            if (jobId) {
+            if (typeof editJobNumber === "number") {
                 updateJob(manualJob, jobId).then(res=>{
                     let targetIndex : number = manualJob.jobNumber;
                     jobs.splice(targetIndex, 1, manualJob);
                     setJobs([...jobs]);
-                    setManualJob(initialManualJobInput);
-                    router.push("/job-list");
+                    router.push("/job-list")
+
 
                 })
 
@@ -105,8 +105,7 @@ export default function ManualJobForm(props: props) {
                 postJob(manualJob).then(res=>{
                     jobs.push({...manualJob, _id: res.data.insertedId, id: res.data.insertedId.toString()});
                     setJobs([...jobs]);
-                    setManualJob(initialManualJobInput);
-                    router.push("/job-list");
+                    router.push("/job-list")
                 })
                 .catch(err=>{
                     console.error(err);
@@ -153,6 +152,20 @@ export default function ManualJobForm(props: props) {
         return requiredElements.some(ele=>{return job[ele as keyof Job as Exclude<keyof Job, ["_id", "id", "jobNumber","user_id"]>]?.trim().length === 0});
 
     };
+
+    useEffect(()=>{
+        if (typeof editJobNumber === "number")  {
+            jobInput = jobs[editJobNumber];
+            initialId= jobs[editJobNumber].id!
+        } else {
+
+            jobInput = initialManualJobInput
+            initialId =""
+        }
+        setManualJob(jobInput)
+        setJobId(initialId)
+
+    }, [editJobNumber])
 
     const manualErrorSetting = () => {
         setManualDisabled(jobTest(requiredArr, manualJob));
@@ -229,12 +242,13 @@ export default function ManualJobForm(props: props) {
                 <JobStatusSelect handleFunc={handleChangeInput} selectVal={manualJob.appStatus} inputSetting={divInputSetting} />
 
 
-                
-                <button className={manualDisabled ? disabledButtonSetting : buttonSetting}>{manualDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : "Submit Job Entry" }</button>                
+                <div className="my-2 flex flex-row justify-evenly">
+                    {jobId && <DeleteButton buttonSetting={buttonSetting} jobId={jobId} />}
+                    <button type="submit" className={manualDisabled ? disabledButtonSetting : buttonSetting}>{manualDisabled ? `Fill ${highlightOn ? "Highlighted" : ""} Required Fields` : `${typeof editJobNumber === "number" ? "Update" : "Submit"} Job Entry` }</button>                
+                    {jobs.length !==0 && <div className={`${buttonSetting} cursor-pointer`} onClick={()=>{setEditJobNumber(null)}}>Cancel</div>}
+                </div>
             </form>
-            <div className="my-2">
-            {jobId && <DeleteButton buttonSetting={buttonSetting} jobId={jobId} />}
-            </div>
+
 
             </div>
             );

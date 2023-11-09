@@ -8,13 +8,13 @@ import JobRow from "./JobRow";
 import { Table, TableRow, TableHead, TableCell, TableBody, Box, TablePagination } from "@mui/material";
 import AppRatePlot from "./AppRatePlot";
 import SankeyPlot from "./SankeyMetrics";
+import ManualJobForm from "./ManualJobForm";
 
 export default function JobList() {
-    const { user, token, setAlertMessage, jobs, setJobs, trial } = useContext(UserContext);
+    const { user, token, setAlertMessage, jobs, setJobs, trial, editJobNumber, setEditJobNumber } = useContext(UserContext);
     const router = useRouter();
+    const [editJob, setEditJob] = useState(false);
 
-
-    const jobArr : Job[] = []
     const [filteredJobs, setFilteredJobs] = useState(jobs);
 
     const initialFilterEntry = {filterKey: "title", filterTerm: ""};
@@ -34,7 +34,7 @@ export default function JobList() {
     let initialData : SankeyInputs  = {source:[], target:[], value: []};
     const [sankeyData, setSankeyData] = useState<{data: SankeyInputs, colors: string[], labels: string[]}>({data: {...initialData}, colors: [], labels: []})
 
-    const buttonSetting = "m-auto w-auto rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
+    const buttonSetting = "w-auto mx-5 rounded-md border-2 p-3 border-black object-left bg-lime-700 text-white hover:bg-lime-200 hover:text-black";
     
     const handleUpdateChange =(e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>)=>{
       const {value} = e.target;
@@ -91,24 +91,26 @@ export default function JobList() {
     };
 
     useEffect(()=>{
-      if (jobs.length === 0) {
+
         if (user){
+          setEditJobNumber(null);
+          setEditJob(false);
           getJobs(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
             if (result.data.length === 0) {
-              router.push("/job-entry")
-              setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"})
+              setEditJob(true);
+              setAlertMessage({message: "No jobs found. Submit a job first.", severity: "error"});
             }
             else{
               let results: Job[] = result.data;
             setJobs(results);
-            setFilteredJobs(result.data);
+            setFilteredJobs(results);
           }
           }
           )
         } else {
-            router.push("/");
+            router.push("/login");
             setAlertMessage({message:"Not Logged In.", severity: "error"});        
-        }
+        
     }
   },[]);
 
@@ -161,17 +163,24 @@ export default function JobList() {
 
    useEffect(()=>{
     if (jobs.length > 0 && user) {
+
       getScatterData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
         setScatterData(result.data)     
       }
       )
       getSankeyData(trial ? "6482c564b18df6bd4874cb5c" : user?.id).then(result=>{
-        console.log(result.data)
         setSankeyData(result.data)     
       }
       )
+      
     }
-  },[jobs])
+  },[revealData])
+
+  useEffect(()=>{
+    setEditJob(typeof editJobNumber=== "number")
+    if (editJob) setRevealData(false)
+    setFilteredJobs(jobs)
+  },[editJobNumber])
 
   
   const updateJobsNoResponse = async () => {
@@ -230,9 +239,12 @@ export default function JobList() {
 
     return(
       <>
-        <div className="flex flex-col flex-wrap align-evenly justify-evenly">
+        {!editJob && <div className="flex flex-col flex-wrap align-evenly justify-evenly">
           {trial && <h1 className="text-3xl font-bold text-center">Do note that trial data cannot be modified on the server and is for demonstration purposes only. The App Frequency plot does not reflect user changes as well.</h1>}
-          <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display Job Progress Plots</button>
+          <div className="flex flex-row justify-center">
+            <button className={buttonSetting} onClick={()=>{setEditJob(true)}}>Submit a New Job Application</button>
+            <button className={buttonSetting} onClick={()=>{setRevealData(!revealData)}}>Display Job Progress Plots</button>
+          </div>
           <div className="my-2 self-center">
           {revealData && <AppRatePlot data={scatterData} />}
           {revealData && <SankeyPlot {...sankeyData} />}
@@ -253,7 +265,8 @@ export default function JobList() {
           </form>
           <button className="underline mx-2" onClick={()=>{setFilterSetting(initialFilterEntry)}}>Reset Filter</button>
           </div>
-        </div>
+        </div>}
+        {editJob && <ManualJobForm />}
         <Box sx={{ display: { xs: 'none', sm:'none', md: 'none', lg: 'block', xl:'block'}}}>
         <Table style={{ width: '100%' }} aria-label="simple table">
                     <TableHead>
@@ -274,8 +287,8 @@ export default function JobList() {
                     </TableHead>
             <TableBody>          
             {jobs.length >0 ?
-            visibleRows.map((job,idx)=>{
-              return(<JobRow key={job.id!} idx={job.jobNumber} jobId={job.id!} />)
+            visibleRows.map((job)=>{
+              return(<JobRow key={job.id!} jobNumber={job.jobNumber} jobId={job.id!} />)
             })
           : 
             <TableRow
@@ -317,7 +330,7 @@ export default function JobList() {
                     </TableHead>
                     {jobs.length >0 ? visibleRows.map((job,idx)=>{
                 return(
-                  <JobRowSmall key={idx + (page * rowsPerPage)} idx={idx+(page * rowsPerPage)} jobId={job.id!} />
+                  <JobRowSmall key={job.id!} jobNumber={job.jobNumber} jobId={job.id!} />
                 )
             }) : 
             <TableBody>

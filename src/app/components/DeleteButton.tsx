@@ -13,9 +13,31 @@ interface props {
 
 export default function DeleteButton(props: props) {
     const router = useRouter();
-    const {token, user, setAlertMessage, trial} = useContext(UserContext);
+    const {token, user, setAlertMessage, editJobNumber, setEditJobNumber, setJobs, jobs} = useContext(UserContext);
     const {jobId, buttonSetting} = props;
     const [opened, setOpened] = useState(false);
+    async function getJobs(user_id:string) {
+      try {
+          const getReq = {
+              "method": "GET",
+              "Content-type": "application/json",
+              "headers": {"Authentication": `Bearer ${token}`}
+            };
+          let url : string = `/api/jobs/read?id=${user_id}`
+          const res = await fetch(`${url}`, getReq);
+          if (!(res.status === 200)) {
+            setAlertMessage({message: "Failed to fetch data.", severity: "error"})
+              router.push("/");
+            throw new Error('Failed to fetch data');
+            
+          }
+          return res.json();
+          
+      } catch (e) {
+          console.error(e);
+      };
+  
+    };
 
     const deleteJob = async (jobId: string) => {
         const deleteReq = {
@@ -27,7 +49,12 @@ export default function DeleteButton(props: props) {
             let url : string =  `/api/jobs/delete?id=${user?.id}&jobid=${jobId}`
           const response = await fetch(`${url}`, deleteReq);
           let job = await response.json();
-          router.push("/job-list")
+          setAlertMessage({message: 'Deleted job', severity: "success" })
+          let result = await getJobs(user?.id!)
+          setJobs(result.data)
+
+          setEditJobNumber(null)
+
           return job;
         } catch (error) {
                       console.error('unexpected error: ', error);
@@ -37,6 +64,9 @@ export default function DeleteButton(props: props) {
             }
       };
 
+
+
+
       const handleOpen = () => {
         setOpened(true);
       };
@@ -45,8 +75,9 @@ export default function DeleteButton(props: props) {
         setOpened(false);
       };
     
-    const handleAgree = () => {
-      deleteJob(jobId)
+    const handleAgree = async () => {
+      await deleteJob(jobId)
+
         handleClose();
       };
     const handleDisagree = () => {
@@ -56,7 +87,7 @@ export default function DeleteButton(props: props) {
 
       return (
         <>
-          <button onClick={handleOpen} className={buttonSetting}>Delete Job</button>
+          <div onClick={handleOpen} className={`${buttonSetting} cursor-pointer`}>Delete Job</div>
                 <Dialog
                 open={opened}
                 onClose={handleClose}
